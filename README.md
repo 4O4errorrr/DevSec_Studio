@@ -37,6 +37,6 @@ charlie / charlie
 
 ## Objectif
 
-Explore l'application, cherche les failles cachees dans les tickets, fichiers, webhooks, logs, tokens et profils, puis valide les challenges pour faire progresser le scoreboard.
+Explore l'application, cherche les failles cachees dans les tickets, fichiers, webhooks, notifications, tokens et profils, puis valide les challenges pour faire progresser le scoreboard.
 
 Chaque challenge contient deux niveaux d'indice directement dans sa page.

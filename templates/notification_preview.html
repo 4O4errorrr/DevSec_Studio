@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  {% include "_success.html" %}
+  <p class="eyebrow">Notifications client</p>
+  <h1>Le modele de notification</h1>
+  <p class="hint">L'equipe support a cree un outil pour previsualiser les notifications. Les variables comme <code>{{ "{{ name }}" }}</code> sont remplacees cote serveur avant l'envoi.</p>
+
+  <section class="request-lab">
+    <h2>Previsualiser un modele</h2>
+    <form method="post">
+      <label>Modele<textarea name="template" rows="5">{{ template }}</textarea></label>
+      <button type="submit">Previsualiser</button>
+    </form>
+  </section>
+
+  {% if error %}
+    <p class="error">{{ error }}</p>
+  {% else %}
+    <div class="result">
+      <p>Rendu serveur:</p>
+      <pre>{{ rendered }}</pre>
+    </div>
+  {% endif %}
+
+  <div class="hint-stack">
+    <details>
+      <summary>Indice 1</summary>
+      <p>Pense a une injection cote serveur dans un moteur de template. Verifie d'abord si une expression est evaluee.</p>
+    </details>
+    <details>
+      <summary>Indice 2</summary>
+      <p>Teste une expression comme <code>{{ "{{ 7 * 7 }}" }}</code>. Si elle est evaluee, cherche si l'objet <code>config</code> est accessible avec <code>{{ "{{ config }}" }}</code>.</p>
+    </details>
+  </div>
+</section>
+{% endblock %}

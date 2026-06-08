@@ -8,7 +8,7 @@ import sqlite3
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
-from flask import Flask, redirect, render_template, request, session, url_for
+from flask import Flask, redirect, render_template, render_template_string, request, session, url_for
 
 
 def load_dotenv_file(path=".env"):
@@ -28,6 +28,8 @@ load_dotenv_file()
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", secrets.token_hex(32))
 FLAG_SECRET = os.environ.get("FLAG_SECRET", secrets.token_hex(32))
+app.config["SUPPORT_EXPORT_TOKEN"] = "support-export-dev-42"
+app.config["NOTIFICATION_SIGNING_KEY"] = "notify-signing-key-lab"
 
 
 def build_flag(challenge_id):
@@ -108,8 +110,8 @@ FEEDBACKS = [
 
 SECURITY_LOGS = [
     "09:02 user=alice action=login status=success",
-    "09:05 reset_token=RST-DEV-4421 generated_for=bob",
-    "09:08 export_path=../private/customer_export.csv requested_by=debug-job",
+    "09:04 user=bob action=dashboard status=success",
+    "09:08 job=debug-cleanup status=success",
 ]
 
 PRIVATE_FILES = {
@@ -185,10 +187,10 @@ CHALLENGES = {
         "impact": "Une injection peut extraire des donnees internes, contourner des filtres ou modifier la base dans un cas reel.",
     },
     "logs": {
-        "name": "Les traces de debug",
+        "name": "Le modele de notification",
         "flag": build_flag("logs"),
-        "vulnerability": "Exposition de donnees sensibles dans les logs: mots de passe, tokens ou chemins internes sont journalises.",
-        "impact": "Des logs partages ou consultes par trop de personnes peuvent devenir une source de compromission.",
+        "vulnerability": "SSTI: un modele fourni par l'utilisateur est interprete par le moteur de template cote serveur.",
+        "impact": "Une SSTI peut exposer la configuration applicative, des secrets, des tokens internes, voire mener plus loin selon le moteur et les objets accessibles.",
     },
     "profile": {
         "name": "Le profil trop flexible",
@@ -545,14 +547,23 @@ def people_search():
     )
 
 
-@app.route("/logs")
+@app.route("/notification-preview", methods=["GET", "POST"])
 def logs():
-    # VULNERABLE BY DESIGN: sensitive data exposure in logs.
-    # Logs contain tokens, passwords and export paths.
+    app.config["LAB_NOTIFICATION_FLAG"] = CHALLENGES["logs"]["flag"]
+    template = request.form.get("template", "Bonjour {{ name }}, votre ticket est pret.")
+    rendered = ""
+    error = None
+    context = {"name": "Alice", "ticket_id": "101", "product": "DevSec Studio"}
+    try:
+        # VULNERABLE BY DESIGN: SSTI.
+        # A user-controlled string is rendered as a server-side Jinja template.
+        rendered = render_template_string(template, **context)
+    except Exception as exc:
+        error = str(exc)
     success = None
-    if any("password=" in event or "reset_token=" in event or "export_path=" in event for event in SECURITY_LOGS):
+    if "SUPPORT_EXPORT_TOKEN" in rendered or "LAB_NOTIFICATION_FLAG" in rendered:
         success = mark_solved("logs")
-    return render_template("logs.html", events=SECURITY_LOGS, success=success)
+    return render_template("notification_preview.html", template=template, rendered=rendered, error=error, success=success)
 
 
 @app.route("/profile-editor", methods=["GET", "POST"])
