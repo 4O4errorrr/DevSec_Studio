@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  {% include "_success.html" %}
+  <p class="eyebrow">Connexion sans mot de passe</p>
+  <h1>Le lien magique</h1>
+  <p class="hint">L'equipe support a cree un systeme de lien magique pour se connecter vite aux comptes de test. Dans cet ecran, seul le lien d'Alice est fourni. Le risque vient du format du token, qui semble trop regulier.</p>
+
+  <section class="request-lab">
+    <h2>Lien recu par Alice</h2>
+    <p class="hint">Le support a envoye ce lien a Alice uniquement:</p>
+    <code>{{ magic_link }}</code>
+  </section>
+
+  <section class="request-lab">
+    <h2>Tester un lien magique</h2>
+    <form method="post">
+      <label>Lien a tester<input name="magic_link" value="{{ tested_link }}"></label>
+      <button type="submit">Verifier le lien</button>
+    </form>
+    {% if result_user %}
+      <div class="result">
+        <p>Lien accepte pour:</p>
+        <strong>{{ result_user.username }} - {{ result_user.email }} - {{ result_user.role }}</strong>
+      </div>
+    {% elif error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+  </section>
+
+  <div class="hint-stack">
+    <details>
+      <summary>Indice 1</summary>
+      <p>Pense a une authentification sans mot de passe dont le token serait predictible ou derive d'une information visible.</p>
+    </details>
+    <details>
+      <summary>Indice 2</summary>
+      <p>Observe le lien d'Alice. Sans demander un nouveau lien, essaie de modifier l'email et de reconstruire le token correspondant pour <code>bob@devsec.local</code> ou <code>charlie@devsec.local</code>.</p>
+    </details>
+  </div>
+</section>
+{% endblock %}

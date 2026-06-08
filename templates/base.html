@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DevSec Studio</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="{{ url_for('index') }}">DevSec Studio</a>
+      <nav>
+        <a href="{{ url_for('index') }}">Challenges</a>
+        <a href="{{ url_for('feedback') }}">Feedback</a>
+        <a href="{{ url_for('download') }}">Docs</a>
+        <a href="{{ url_for('webhook_tester') }}">Webhook</a>
+        <a href="{{ url_for('scoreboard') }}">Score {{ solved_count }}/{{ total_challenges }}</a>
+        {% if current_user %}
+          <a href="{{ url_for('dashboard') }}">Tickets</a>
+          <a href="{{ url_for('logout') }}">Deconnexion</a>
+        {% else %}
+          <a href="{{ url_for('login') }}">Connexion</a>
+        {% endif %}
+      </nav>
+    </header>
+    <main>
+      <section class="warning">
+        Ce lab est volontairement vulnerable afin de sensibiliser aux enjeux de la cybersecurite. Les comportements presentes ne sont pas a reproduire sur des environnements reels.
+      </section>
+      {% block content %}{% endblock %}
+    </main>
+  </body>
+</html>

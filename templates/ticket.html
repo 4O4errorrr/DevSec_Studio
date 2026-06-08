@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  {% include "_success.html" %}
+  <p class="eyebrow">Ticket #{{ ticket.id }}</p>
+  <h1>{{ ticket.title }}</h1>
+  <dl>
+    <div><dt>Client</dt><dd>{{ ticket.customer }}</dd></div>
+    <div><dt>Owner ID</dt><dd>{{ ticket.owner_id }}</dd></div>
+    <div><dt>Details</dt><dd>{{ ticket.details }}</dd></div>
+  </dl>
+  <div class="hint-stack">
+    <details>
+      <summary>Indice 1</summary>
+      <p>Pense a une vulnerabilite de controle d'acces sur des objets identifies par un nombre.</p>
+    </details>
+    <details>
+      <summary>Indice 2</summary>
+      <p>Connecte-toi en Alice: le dashboard ne montre que <code>/ticket/101</code>. Change ensuite l'identifiant dans l'URL vers <code>/ticket/102</code>.</p>
+    </details>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,8 @@
+services:
+  devsec-studio:
+    image: ghcr.io/your-org/devsec-studio:latest
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_SECRET_KEY: "${FLASK_SECRET_KEY}"
+      FLAG_SECRET: "${FLAG_SECRET}"

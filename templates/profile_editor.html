@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  {% include "_success.html" %}
+  <p class="eyebrow">Profil developpeur</p>
+  <h1>Le profil trop flexible</h1>
+  <p class="hint">Alice peut modifier son email et son equipe depuis l'interface. En revanche, son role devrait rester controle uniquement par le serveur et par un vrai workflow d'administration.</p>
+  <form method="post">
+    <label>Email<input name="email" value="{{ user.email }}"></label>
+    <label>Equipe<input name="team" value="{{ user.team }}"></label>
+    <button type="submit">Sauvegarder</button>
+  </form>
+
+  <section class="request-lab">
+    <h2>Requete attendue par l'interface</h2>
+    <pre>POST /profile-editor
+email={{ user.email }}
+team={{ user.team }}</pre>
+    <p class="hint">Champ sensible present cote serveur mais absent du formulaire: <code>role</code>.</p>
+  </section>
+
+  <details class="advanced-request">
+    <summary>Simuler une requete modifiee</summary>
+    <p class="hint">Cette zone represente ce qu'un utilisateur pourrait envoyer apres interception de la requete avec DevTools, Burp ou curl.</p>
+    <form method="post">
+      <label>Email<input name="email" value="{{ user.email }}"></label>
+      <label>Equipe<input name="team" value="{{ user.team }}"></label>
+      <label>Parametre supplementaire<textarea name="injected_body" rows="3" placeholder=""></textarea></label>
+      <button type="submit">Envoyer la requete modifiee</button>
+    </form>
+  </details>
+
+  <div class="comparison-grid">
+    <article>
+      <span>Etat attendu pour Alice</span>
+      <dl>
+        <div><dt>Email</dt><dd>{{ expected_profile.email }}</dd></div>
+        <div><dt>Equipe</dt><dd>{{ expected_profile.team }}</dd></div>
+        <div><dt>Role</dt><dd>{{ expected_profile.role }}</dd></div>
+        <div><dt>Acces admin</dt><dd>{{ 'autorise' if expected_profile.role == 'admin' else 'refuse' }}</dd></div>
+      </dl>
+    </article>
+    <article class="{{ 'changed' if user.role != expected_profile.role else '' }}">
+      <span>Etat serveur actuel</span>
+      <dl>
+        <div><dt>Email</dt><dd>{{ user.email }}</dd></div>
+        <div><dt>Equipe</dt><dd>{{ user.team }}</dd></div>
+        <div><dt>Role</dt><dd>{{ user.role }}</dd></div>
+        <div><dt>Acces admin</dt><dd>{{ 'autorise' if user.role == 'admin' else 'refuse' }}</dd></div>
+      </dl>
+    </article>
+  </div>
+
+  <div class="status-panel {{ 'ok' if user.role == 'admin' else 'blocked' }}">
+    <strong>Test d'acces admin:</strong>
+    {% if user.role == 'admin' %}
+      Alice est maintenant vue comme administratrice, alors que ce role n'etait pas modifiable dans l'interface.
+    {% else %}
+      Alice reste limitee a son role actuel.
+    {% endif %}
+  </div>
+  <div class="hint-stack">
+    <details>
+      <summary>Indice 1</summary>
+      <p>Pense a une faille ou le serveur accepte plus de champs que ceux affiches dans le formulaire. L'interface n'est pas une limite de securite.</p>
+    </details>
+    <details>
+      <summary>Indice 2</summary>
+      <p>Compare la requete attendue avec les champs sensibles cote serveur. Le parametre injecte doit nommer explicitement le champ et sa valeur, par exemple <code>role: 'admin'</code>.</p>
+    </details>
+  </div>
+</section>
+{% endblock %}

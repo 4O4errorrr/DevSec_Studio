@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel narrow">
+  <p class="eyebrow">Compte developpeur</p>
+  <h1>Connexion</h1>
+  <p class="hint">Comptes: alice/alice, bob/bob, charlie/charlie.</p>
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+  <form method="post">
+    <label>Utilisateur<input name="username" autocomplete="username" value="alice"></label>
+    <label>Mot de passe<input name="password" type="password" autocomplete="current-password" value="alice"></label>
+    <button type="submit">Ouvrir le dashboard</button>
+  </form>
+</section>
+{% endblock %}

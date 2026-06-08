@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  {% include "_success.html" %}
+  {% with success=quiz_success %}
+    {% include "_success.html" %}
+  {% endwith %}
+
+  <p class="eyebrow">Serveur de fichiers</p>
+  <h1>Index of /debug/</h1>
+  <p class="hint">Le serveur expose le contenu d'un repertoire de debug. Certains fichiers semblent anodins, d'autres meritaient de rester internes.</p>
+
+  <section class="quiz-box">
+    <h2>Question bonus</h2>
+    <p>Quel comportement de securite observes-tu sur cette page ?</p>
+    <form method="get">
+      <label>Reponse<input name="quiz" placeholder="Ex: ..." value="{{ request.args.get('quiz', '') }}"></label>
+      <button type="submit">Valider le bonus</button>
+    </form>
+  </section>
+
+  <div class="directory-listing">
+    <h2>Index of /debug/</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Last modified</th>
+          <th>Size</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="#">[DIR] Parent Directory</a></td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        {% for file, meta in files.items() %}
+          <tr>
+            <td><a href="{{ url_for('debug_config') }}?file={{ file }}">[TXT] {{ file }}</a></td>
+            <td>{{ meta.modified }}</td>
+            <td>{{ meta.size }}</td>
+            <td>{{ meta.description }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <address>DevSec Studio file server at 127.0.0.1 Port 5000</address>
+  </div>
+
+  {% if selected_file %}
+    <div class="result">
+      <p>Lecture de <strong>{{ selected_file }}</strong>:</p>
+      {% if content %}
+        <pre>{{ content }}</pre>
+      {% else %}
+        <pre>Fichier introuvable.</pre>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% if selected_file == "app.conf" %}
+    <section class="unlock-box">
+      <h2>Vue configuration complete</h2>
+      <p class="hint">La vue lambda masque certaines valeurs. Si tu identifies un compte de lecture dans le fichier, essaie de l'utiliser ici.</p>
+      <form method="get">
+        <input type="hidden" name="file" value="app.conf">
+        <label>Login<input name="user" value="{{ request.args.get('user', '') }}"></label>
+        <label>Password<input name="password" value="{{ request.args.get('password', '') }}"></label>
+        <button type="submit">Afficher la configuration complete</button>
+      </form>
+    </section>
+  {% endif %}
+
+  <div class="hint-stack">
+    <details>
+      <summary>Indice 1</summary>
+      <p>Pense a une mauvaise configuration d'exposition de fichiers: le serveur liste un repertoire qui ne devrait pas etre public.</p>
+    </details>
+    <details>
+      <summary>Indice 2</summary>
+      <p>Ouvre <code>app.conf</code>. Meme si des valeurs sont masquees, cherche un couple login/password en dur, puis reutilise-le dans le formulaire de lecture complete.</p>
+    </details>
+  </div>
+</section>
+{% endblock %}

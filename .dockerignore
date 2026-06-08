@@ -1,0 +1,8 @@
+.git
+.venv
+__pycache__
+*.pyc
+GUIDE_ATELIER.md
+.env
+.env.*
+release

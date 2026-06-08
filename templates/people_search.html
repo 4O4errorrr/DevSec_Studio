@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  {% include "_success.html" %}
+  <p class="eyebrow">Annuaire interne</p>
+  <h1>Recherche de droits</h1>
+  <p class="hint">L'outil permet aux developpeurs de verifier rapidement l'equipe et le niveau d'acces associes a un email interne.</p>
+  <p class="hint">Emails de test:</p>
+  <div class="doc-list">
+    {% for sample in sample_emails %}
+      <a href="{{ url_for('people_search') }}?email={{ sample }}">{{ sample }}</a>
+    {% endfor %}
+  </div>
+  <form method="get">
+    <label>Email<input name="email" value="{{ email }}"></label>
+    <label class="checkline"><input type="checkbox" name="diagnostic" value="1" {% if diagnostic %}checked{% endif %}> Afficher le diagnostic developpeur</label>
+    <button type="submit">Rechercher</button>
+  </form>
+  {% if diagnostic %}
+    <div class="result">
+      <p>Diagnostic developpeur:</p>
+      <code>{{ query }}</code>
+    </div>
+  {% endif %}
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+  <div class="messages">
+    {% for row in rows %}
+      <article><h2>{{ row[0] }}</h2><p>{{ row[1] }} - {{ row[2] }}</p></article>
+    {% else %}
+      <p class="hint">Aucun resultat.</p>
+    {% endfor %}
+  </div>
+  <div class="hint-stack">
+    <details>
+      <summary>Indice 1</summary>
+      <p>Pense a une injection dans une requete construite avec une valeur utilisateur. Commence par chercher si ta saisie est placee entre quotes dans une requete.</p>
+    </details>
+    <details>
+      <summary>Indice 2</summary>
+      <p>Active le diagnostic, teste une apostrophe seule, puis demande-toi comment fermer la chaine et ajouter une condition toujours vraie. Le but est que la clause <code>WHERE email = '...'</code> retourne plusieurs lignes.</p>
+    </details>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  <p class="eyebrow">Support engineering</p>
+  <h1>Mes tickets visibles</h1>
+  <p>Connecte en <strong>{{ current_user.username }}</strong>. L'interface ne liste que les tickets rattaches a ton compte.</p>
+  <div class="table">
+    {% for ticket in tickets %}
+      <a href="{{ url_for('ticket', ticket_id=ticket.id) }}">
+        <strong>#{{ ticket.id }} - {{ ticket.title }}</strong>
+        <span>{{ ticket.customer }}</span>
+        <small>owner_id={{ ticket.owner_id }}</small>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

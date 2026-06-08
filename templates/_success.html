@@ -1,0 +1,9 @@
+{% if success %}
+  <section class="success-box">
+    <p class="eyebrow">Challenge reussi</p>
+    <h2>{{ success.name }}</h2>
+    <p><strong>Vulnerabilite exploitee:</strong> {{ success.vulnerability }}</p>
+    <p><strong>Impact reel possible:</strong> {{ success.impact }}</p>
+    <div class="flag">Flag: <code>{{ success.flag }}</code></div>
+  </section>
+{% endif %}

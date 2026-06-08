@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  <p class="eyebrow">Progression personnelle</p>
+  <h1>Scoreboard</h1>
+  <p>{{ solved_count }} challenge{{ '' if solved_count == 1 else 's' }} reussi{{ '' if solved_count == 1 else 's' }} sur {{ total_challenges }}.</p>
+  <div class="score-grid">
+    {% for challenge in challenges %}
+      <article class="{{ 'solved' if challenge.solved else '' }}">
+        <span>{{ 'Reussi' if challenge.solved else 'A faire' }}</span>
+        <h2>{{ challenge.name }}</h2>
+        {% if challenge.solved %}
+          <code>{{ challenge.flag }}</code>
+        {% else %}
+          <p>Explore la mission et declenche le message de reussite.</p>
+        {% endif %}
+      </article>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

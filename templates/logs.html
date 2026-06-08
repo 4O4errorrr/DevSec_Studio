@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  {% include "_success.html" %}
+  <p class="eyebrow">Observability</p>
+  <h1>Logs applicatifs</h1>
+  <p class="hint">Un journal utile pour debug peut devenir une fuite s'il contient secrets, tokens ou mots de passe.</p>
+  <div class="messages">
+    {% for event in events %}
+      <article><code>{{ event }}</code></article>
+    {% endfor %}
+  </div>
+  <div class="hint-stack">
+    <details>
+      <summary>Indice 1</summary>
+      <p>Pense a une fuite de donnees sensibles dans les traces applicatives.</p>
+    </details>
+    <details>
+      <summary>Indice 2</summary>
+      <p>Provoque un echec de connexion avec un mot de passe reconnaissable, puis reviens ici pour voir ce qui a ete journalise.</p>
+    </details>
+  </div>
+</section>
+{% endblock %}
