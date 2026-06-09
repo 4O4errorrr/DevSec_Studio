@@ -8,16 +8,7 @@
 
   <p class="eyebrow">Serveur de fichiers</p>
   <h1>Index of /debug/</h1>
-  <p class="hint">Le serveur expose le contenu d'un repertoire de debug. Certains fichiers semblent anodins, d'autres meritaient de rester internes.</p>
-
-  <section class="quiz-box">
-    <h2>Question bonus</h2>
-    <p>Quel comportement de securite observes-tu sur cette page ?</p>
-    <form method="get">
-      <label>Reponse<input name="quiz" placeholder="Ex: ..." value="{{ request.args.get('quiz', '') }}"></label>
-      <button type="submit">Valider le bonus</button>
-    </form>
-  </section>
+  <p class="hint">Le serveur expose le contenu d'un répertoire de debug. Certains fichiers semblent anodins, d'autres méritaient de rester internes.</p>
 
   <div class="directory-listing">
     <h2>Index of /debug/</h2>
@@ -63,25 +54,34 @@
 
   {% if selected_file == "app.conf" %}
     <section class="unlock-box">
-      <h2>Vue configuration complete</h2>
+      <h2>Vue configuration complète</h2>
       <p class="hint">La vue lambda masque certaines valeurs. Si tu identifies un compte de lecture dans le fichier, essaie de l'utiliser ici.</p>
       <form method="get">
         <input type="hidden" name="file" value="app.conf">
         <label>Login<input name="user" value="{{ request.args.get('user', '') }}"></label>
         <label>Password<input name="password" value="{{ request.args.get('password', '') }}"></label>
-        <button type="submit">Afficher la configuration complete</button>
+        <button type="submit">Afficher la configuration complète</button>
       </form>
     </section>
   {% endif %}
 
+  <section class="quiz-box">
+    <h2>Question bonus</h2>
+    <p>Quelle vulnérabilité observes-tu sur cette page ?</p>
+    <form method="get">
+      <label>Réponse<input name="quiz" placeholder="Ex: ..." value="{{ request.args.get('quiz', '') }}"></label>
+      <button type="submit">Valider le bonus</button>
+    </form>
+  </section>
+
   <div class="hint-stack">
     <details>
       <summary>Indice 1</summary>
-      <p>Pense a une mauvaise configuration d'exposition de fichiers: le serveur liste un repertoire qui ne devrait pas etre public.</p>
+      <p>Pense à une mauvaise configuration d'exposition de fichiers : le serveur liste un répertoire qui ne devrait pas être public.</p>
     </details>
     <details>
       <summary>Indice 2</summary>
-      <p>Ouvre <code>app.conf</code>. Meme si des valeurs sont masquees, cherche un couple login/password en dur, puis reutilise-le dans le formulaire de lecture complete.</p>
+      <p>Ouvre <code>app.conf</code>. Même si des valeurs sont masquées, cherche un couple login/password en dur, puis réutilise-le dans le formulaire de lecture complète.</p>
     </details>
   </div>
 </section>

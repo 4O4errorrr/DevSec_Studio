@@ -2,26 +2,26 @@
 {% block content %}
 <section class="panel">
   {% include "_success.html" %}
-  <p class="eyebrow">Outil developpeur</p>
+  <p class="eyebrow">Outil développeur</p>
   <h1>Webhook tester</h1>
-  <p class="hint">L'outil sert a tester des URLs de callback. Une cible de sante interne est pre-remplie pour verifier que le proxy repond.</p>
+  <p class="hint">L'outil sert à tester des URLs de callback. Une cible de santé interne est préremplie pour vérifier que le proxy répond.</p>
   <form method="get">
-    <label>URL a appeler<input name="url" value="{{ target }}"></label>
+    <label>URL à appeler<input name="url" value="{{ target }}"></label>
     <button type="submit">Tester</button>
   </form>
   {% if error %}
     <p class="error">{{ error }}</p>
   {% else %}
-    <div class="result"><p>Reponse serveur:</p><pre>{{ body }}</pre></div>
+    <div class="result"><p>Réponse serveur :</p><pre>{{ body }}</pre></div>
   {% endif %}
   <div class="hint-stack">
     <details>
       <summary>Indice 1</summary>
-      <p>Pense a une vulnerabilite ou le serveur fait une requete reseau a partir d'une URL fournie par l'utilisateur.</p>
+      <p>Pense à une vulnérabilité où le serveur fait une requête réseau à partir d'une URL fournie par l'utilisateur.</p>
     </details>
     <details>
       <summary>Indice 2</summary>
-      <p>Lis la reponse de la cible de sante, suis la reference metadata, puis reconstruis l'URL interne a partir de <code>host</code>, <code>internal_prefix</code> et <code>audit_route</code>.</p>
+      <p>Lis la réponse de la cible de santé, suis la référence metadata, puis reconstruis l'URL interne à partir de <code>host</code>, <code>internal_prefix</code> et <code>audit_route</code>.</p>
     </details>
   </div>
 </section>

@@ -2,71 +2,71 @@
 {% block content %}
 <section class="panel">
   {% include "_success.html" %}
-  <p class="eyebrow">Profil developpeur</p>
+  <p class="eyebrow">Profil développeur</p>
   <h1>Le profil trop flexible</h1>
-  <p class="hint">Alice peut modifier son email et son equipe depuis l'interface. En revanche, son role devrait rester controle uniquement par le serveur et par un vrai workflow d'administration.</p>
+  <p class="hint">Alice peut modifier son e-mail et son équipe depuis l'interface. En revanche, son rôle devrait rester contrôlé uniquement par le serveur et par un vrai workflow d'administration.</p>
   <form method="post">
     <label>Email<input name="email" value="{{ user.email }}"></label>
-    <label>Equipe<input name="team" value="{{ user.team }}"></label>
+    <label>Équipe<input name="team" value="{{ user.team }}"></label>
     <button type="submit">Sauvegarder</button>
   </form>
 
   <section class="request-lab">
-    <h2>Requete attendue par l'interface</h2>
+    <h2>Requête attendue par l'interface</h2>
     <pre>POST /profile-editor
 email={{ user.email }}
 team={{ user.team }}</pre>
-    <p class="hint">Champ sensible present cote serveur mais absent du formulaire: <code>role</code>.</p>
+    <p class="hint">Un champ sensible existe côté serveur, mais il n'est pas censé être modifiable depuis cette interface.</p>
   </section>
 
-  <details class="advanced-request">
-    <summary>Simuler une requete modifiee</summary>
-    <p class="hint">Cette zone represente ce qu'un utilisateur pourrait envoyer apres interception de la requete avec DevTools, Burp ou curl.</p>
+  <section class="request-lab">
+    <h2>Simulation de requête POST côté front</h2>
+    <p class="hint">Cette zone simule une requête modifiée depuis le front-end, comme si un utilisateur avait ajouté un paramètre avant l'envoi. Le serveur ne devrait pas faire confiance à ce champ.</p>
     <form method="post">
       <label>Email<input name="email" value="{{ user.email }}"></label>
-      <label>Equipe<input name="team" value="{{ user.team }}"></label>
-      <label>Parametre supplementaire<textarea name="injected_body" rows="3" placeholder=""></textarea></label>
-      <button type="submit">Envoyer la requete modifiee</button>
+      <label>Équipe<input name="team" value="{{ user.team }}"></label>
+      <label>Paramètre libre<input name="extra_param" value=""></label>
+      <button type="submit">Envoyer la requête simulée</button>
     </form>
-  </details>
+  </section>
 
   <div class="comparison-grid">
     <article>
-      <span>Etat attendu pour Alice</span>
+      <span>État attendu pour Alice</span>
       <dl>
         <div><dt>Email</dt><dd>{{ expected_profile.email }}</dd></div>
-        <div><dt>Equipe</dt><dd>{{ expected_profile.team }}</dd></div>
-        <div><dt>Role</dt><dd>{{ expected_profile.role }}</dd></div>
-        <div><dt>Acces admin</dt><dd>{{ 'autorise' if expected_profile.role == 'admin' else 'refuse' }}</dd></div>
+        <div><dt>Équipe</dt><dd>{{ expected_profile.team }}</dd></div>
+        <div><dt>Rôle</dt><dd>{{ expected_profile.role }}</dd></div>
+        <div><dt>Accès admin</dt><dd>{{ 'autorisé' if expected_profile.role == 'admin' else 'refusé' }}</dd></div>
       </dl>
     </article>
     <article class="{{ 'changed' if user.role != expected_profile.role else '' }}">
-      <span>Etat serveur actuel</span>
+      <span>État serveur actuel</span>
       <dl>
         <div><dt>Email</dt><dd>{{ user.email }}</dd></div>
-        <div><dt>Equipe</dt><dd>{{ user.team }}</dd></div>
-        <div><dt>Role</dt><dd>{{ user.role }}</dd></div>
-        <div><dt>Acces admin</dt><dd>{{ 'autorise' if user.role == 'admin' else 'refuse' }}</dd></div>
+        <div><dt>Équipe</dt><dd>{{ user.team }}</dd></div>
+        <div><dt>Rôle</dt><dd>{{ user.role }}</dd></div>
+        <div><dt>Accès admin</dt><dd>{{ 'autorisé' if user.role == 'admin' else 'refusé' }}</dd></div>
       </dl>
     </article>
   </div>
 
   <div class="status-panel {{ 'ok' if user.role == 'admin' else 'blocked' }}">
-    <strong>Test d'acces admin:</strong>
+    <strong>Test d'accès admin :</strong>
     {% if user.role == 'admin' %}
-      Alice est maintenant vue comme administratrice, alors que ce role n'etait pas modifiable dans l'interface.
+      Alice est maintenant vue comme administratrice, alors que ce rôle n'était pas modifiable dans l'interface.
     {% else %}
-      Alice reste limitee a son role actuel.
+      Alice reste limitée à son rôle actuel.
     {% endif %}
   </div>
   <div class="hint-stack">
     <details>
       <summary>Indice 1</summary>
-      <p>Pense a une faille ou le serveur accepte plus de champs que ceux affiches dans le formulaire. L'interface n'est pas une limite de securite.</p>
+      <p>Pense à une faille où le serveur accepte plus de champs que ceux affichés dans le formulaire. L'interface n'est pas une limite de sécurité.</p>
     </details>
     <details>
       <summary>Indice 2</summary>
-      <p>Compare la requete attendue avec les champs sensibles cote serveur. Le parametre injecte doit nommer explicitement le champ et sa valeur, par exemple <code>role: 'admin'</code>.</p>
+      <p>Compare la requête attendue avec les champs sensibles côté serveur. Dans la simulation, tente d'ajouter un paramètre de requête complet pour demander un rôle administrateur.</p>
     </details>
   </div>
 </section>

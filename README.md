@@ -1,6 +1,6 @@
 # DevSec Studio
 
-Lab local volontairement vulnerable pour s'entrainer a reperer des erreurs de securite courantes cote developpeur.
+Lab local volontairement vulnérable pour s'entraîner à repérer des erreurs de sécurité courantes côté développeur.
 
 > A utiliser uniquement en local. Ne pas exposer sur Internet.
 

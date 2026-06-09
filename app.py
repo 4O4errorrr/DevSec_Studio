@@ -85,14 +85,14 @@ TICKETS = {
         "owner_id": 1,
         "title": "Erreur paiement sandbox",
         "customer": "Northwind Labs",
-        "details": "Carte de test rattachee a alice.demo@customer.local",
+        "details": "Carte de test rattachée à alice.demo@customer.local",
     },
     102: {
         "id": 102,
         "owner_id": 2,
         "title": "Export client lent",
         "customer": "BlueRiver Health",
-        "details": "Export contient emails, contrats et references internes.",
+        "details": "L'export contient des e-mails, des contrats et des références internes.",
     },
     103: {
         "id": 103,
@@ -105,7 +105,7 @@ TICKETS = {
 
 FEEDBACKS = [
     {"author": "alice", "content": "Le dashboard de revue de code est beaucoup plus clair."},
-    {"author": "bob", "content": "A verifier: les exports doivent rester accessibles aux leads seulement."},
+    {"author": "bob", "content": "À vérifier : les exports doivent rester accessibles aux leads seulement."},
 ]
 
 SECURITY_LOGS = [
@@ -121,82 +121,104 @@ PRIVATE_FILES = {
 
 PUBLIC_FILES = {
     "release-notes.txt": "DevSec Studio 0.9 - ajout du module exports et du proxy webhook.\n",
-    "onboarding.txt": "Bienvenue dans le portail interne de formation securite developpeur.\n",
-    "engineering-notes.txt": "Note dev: les exports clients ne doivent jamais etre servis par ce module. Backup temporaire observe pendant les tests: ../private/customer_export.csv\n",
+    "onboarding.txt": "Bienvenue dans le portail interne de formation sécurité développeur.\n",
+    "engineering-notes.txt": "Note dev : les exports clients ne doivent jamais être servis par ce module. Backup temporaire observé pendant les tests : ../private/customer_export.csv\n",
 }
 
 PROMOS = [
     ("alice@devsec.local", "Frontend", "Vue tickets frontend"),
-    ("bob@devsec.local", "Backend", "Acces exports clients"),
-    ("charlie@devsec.local", "Platform", "Acces administration"),
+    ("bob@devsec.local", "Backend", "Accès exports clients"),
+    ("charlie@devsec.local", "Platform", "Accès administration"),
 ]
 
 CHALLENGES = {
     "ticket": {
         "name": "Le ticket voisin",
         "flag": build_flag("ticket"),
-        "vulnerability": "Controle d'acces defaillant: un utilisateur connecte peut consulter un objet qui ne lui appartient pas.",
-        "impact": "Dans un environnement reel, cela peut exposer des tickets clients, contrats, incidents ou donnees personnelles.",
+        "vulnerability": "Contrôle d'accès défaillant : un utilisateur connecté peut consulter un objet qui ne lui appartient pas.",
+        "why": "La route `/ticket/<id>` vérifie seulement que l'utilisateur est connecté, puis charge le ticket demandé sans comparer `owner_id` avec l'utilisateur courant.",
+        "impact": "Avec un vrai attaquant, cela peut exposer des tickets clients, contrats, incidents ou données personnelles par simple modification d'URL.",
+        "fix": "Vérifier l'autorisation côté serveur pour chaque objet, tester les accès avec plusieurs comptes et refuser les objets hors périmètre.",
     },
     "download": {
         "name": "Le centre documentaire",
         "flag": build_flag("download"),
-        "vulnerability": "Path traversal: un chemin fourni par l'utilisateur permet de lire un fichier hors de la zone prevue.",
-        "impact": "Cela peut mener a la fuite d'exports clients, fichiers de configuration, cles API ou sauvegardes internes.",
+        "vulnerability": "Path traversal : un chemin fourni par l'utilisateur permet de lire un fichier hors de la zone prévue.",
+        "why": "Le paramètre `file` est utilisé directement pour choisir un fichier, et l'application accepte le préfixe `../private/`.",
+        "impact": "Avec un vrai attaquant, cela peut mener à la fuite d'exports clients, fichiers de configuration, clés API ou sauvegardes internes.",
+        "fix": "Utiliser une liste blanche de fichiers, normaliser les chemins et interdire toute navigation hors du répertoire prévu.",
     },
     "feedback": {
         "name": "Le mur de feedback",
         "flag": build_flag("feedback"),
-        "vulnerability": "XSS stockee: un contenu utilisateur est enregistre puis rendu comme du HTML actif.",
-        "impact": "Un attaquant pourrait executer du JavaScript chez d'autres utilisateurs, voler des sessions ou afficher de faux contenus.",
+        "vulnerability": "XSS stockée : un contenu utilisateur est enregistré puis rendu comme du HTML actif.",
+        "why": "Le message est stocké tel quel, puis affiché dans le template avec `| safe`, ce qui désactive l'échappement HTML.",
+        "impact": "Avec un vrai attaquant, du JavaScript pourrait s'exécuter chez d'autres utilisateurs, voler des sessions ou afficher de faux contenus.",
+        "fix": "Échapper les sorties par défaut, éviter `| safe` sur les entrées utilisateur et appliquer une Content Security Policy.",
     },
     "webhook": {
         "name": "Le testeur webhook",
         "flag": build_flag("webhook"),
-        "vulnerability": "SSRF: le serveur effectue une requete vers une URL controlee par l'utilisateur.",
-        "impact": "Cela peut exposer des endpoints internes, metadonnees cloud, tokens ou services non accessibles publiquement.",
+        "vulnerability": "SSRF : le serveur effectue une requête vers une URL contrôlée par l'utilisateur.",
+        "why": "Le paramètre `url` est transmis à `urlopen`, ce qui permet au serveur d'interroger des ressources internes.",
+        "impact": "Avec un vrai attaquant, cela peut exposer des endpoints internes, métadonnées cloud, tokens ou services non accessibles publiquement.",
+        "fix": "Utiliser une liste blanche stricte, bloquer les adresses internes et isoler les services accessibles depuis le serveur.",
     },
     "debug": {
-        "name": "La console oubliee",
+        "name": "La console oubliée",
         "flag": build_flag("debug"),
-        "vulnerability": "Mauvaise configuration: un listing de repertoire expose un fichier de configuration et des identifiants qui permettent de reveler la configuration complete.",
-        "impact": "Dans un cas reel, cela peut exposer des secrets, chemins internes, endpoints prives et faciliter une compromission en chaine.",
+        "vulnerability": "Mauvaise configuration : un listing de répertoire expose un fichier de configuration et des identifiants.",
+        "why": "La route `/debug/config` simule un répertoire listable et laisse lire `app.conf`, qui contient des identifiants de consultation.",
+        "impact": "Avec un vrai attaquant, cela peut exposer des secrets, chemins internes, endpoints privés et faciliter une compromission en chaîne.",
+        "fix": "Désactiver le directory listing, protéger les outils de debug et ne jamais stocker d'identifiants en clair dans des fichiers exposés.",
     },
     "debug_quiz": {
         "name": "Bonus - Diagnostic du listing",
         "flag": build_flag("debug_quiz"),
-        "vulnerability": "Directory listing: le serveur liste le contenu d'un repertoire au lieu de refuser ou servir uniquement des fichiers attendus.",
-        "impact": "Un listing donne une carte de reconnaissance: noms de fichiers, sauvegardes, configs, archives ou indices exploitables.",
+        "vulnerability": "Directory listing : le serveur liste le contenu d'un répertoire au lieu de refuser l'accès.",
+        "why": "La page imite un index de fichiers public pour `/debug/`, ce qui révèle noms, dates et types de fichiers.",
+        "impact": "Avec un vrai attaquant, un listing donne une carte de reconnaissance : sauvegardes, configurations, archives ou indices exploitables.",
+        "fix": "Désactiver le listing automatique et servir uniquement des fichiers explicitement autorisés.",
     },
     "token": {
         "name": "Le jeton lisible",
         "flag": build_flag("token"),
-        "vulnerability": "Defaillance cryptographique: le token est seulement encode en base64, sans signature ni chiffrement.",
-        "impact": "Un utilisateur peut lire ou modifier des attributs de session, privileges ou autorisations cote client.",
+        "vulnerability": "Défaillance cryptographique : le token est seulement encodé en base64, sans signature ni chiffrement.",
+        "why": "La fonction `decode_token` accepte le contenu décodé sans vérifier d'intégrité : un utilisateur peut modifier le JSON puis le réencoder.",
+        "impact": "Avec un vrai attaquant, des attributs de session, privilèges ou autorisations côté client pourraient être modifiés.",
+        "fix": "Signer les jetons, vérifier leur intégrité et garder les autorisations sensibles côté serveur.",
     },
     "admin": {
         "name": "Le lien magique",
         "flag": build_flag("admin"),
-        "vulnerability": "Authentification incorrecte: un lien de connexion sans mot de passe utilise un token predictible.",
-        "impact": "Un attaquant peut forger un lien pour prendre le controle d'un autre compte sans connaitre son mot de passe.",
+        "vulnerability": "Authentification incorrecte : un lien de connexion sans mot de passe utilise un token prédictible.",
+        "why": "La fonction `magic_token` dérive le token depuis la partie locale de l'e-mail, par exemple `ml-alice-2026`.",
+        "impact": "Avec un vrai attaquant, il serait possible de forger un lien pour prendre le contrôle d'un autre compte sans connaître son mot de passe.",
+        "fix": "Générer des tokens longs, aléatoires, à usage unique, expirables et stockés côté serveur.",
     },
     "people": {
         "name": "L'annuaire trop bavard",
         "flag": build_flag("people"),
-        "vulnerability": "Injection SQL: une entree utilisateur est concatenee directement dans une requete.",
-        "impact": "Une injection peut extraire des donnees internes, contourner des filtres ou modifier la base dans un cas reel.",
+        "vulnerability": "Injection SQL : une entrée utilisateur est concaténée directement dans une requête.",
+        "why": "Le champ `email` est inséré dans une chaîne SQL avec une f-string au lieu d'utiliser une requête paramétrée.",
+        "impact": "Avec un vrai attaquant, une injection peut extraire des données internes, contourner des filtres ou modifier la base.",
+        "fix": "Utiliser des requêtes paramétrées, ne pas afficher les erreurs SQL brutes et tester les entrées avec des caractères spéciaux.",
     },
     "logs": {
-        "name": "Le modele de notification",
+        "name": "Le modèle de notification",
         "flag": build_flag("logs"),
-        "vulnerability": "SSTI: un modele fourni par l'utilisateur est interprete par le moteur de template cote serveur.",
-        "impact": "Une SSTI peut exposer la configuration applicative, des secrets, des tokens internes, voire mener plus loin selon le moteur et les objets accessibles.",
+        "vulnerability": "SSTI : un modèle fourni par l'utilisateur est interprété par le moteur de template côté serveur.",
+        "why": "La route `/notification-preview` passe directement le modèle utilisateur à `render_template_string`.",
+        "impact": "Avec un vrai attaquant, une SSTI peut exposer la configuration applicative, des secrets ou des tokens internes.",
+        "fix": "Ne jamais interpréter une entrée utilisateur comme template serveur ; utiliser des modèles prédéfinis et injecter seulement des variables contrôlées.",
     },
     "profile": {
         "name": "Le profil trop flexible",
         "flag": build_flag("profile"),
-        "vulnerability": "Mass assignment: le serveur accepte et applique des champs qui ne devraient pas etre modifiables.",
-        "impact": "Un utilisateur peut changer son role et obtenir des droits d'administration sans passer par un vrai workflow d'autorisation.",
+        "vulnerability": "Mass assignment : le serveur accepte et applique des champs qui ne devraient pas être modifiables.",
+        "why": "La route parcourt tous les champs de `request.form` et les copie dans l'objet utilisateur sans liste blanche.",
+        "impact": "Avec un vrai attaquant, un utilisateur peut changer son rôle et obtenir des droits d'administration sans workflow d'autorisation.",
+        "fix": "Définir une liste blanche stricte des champs modifiables et ignorer tout champ sensible reçu depuis le client.",
     },
 }
 
@@ -550,7 +572,7 @@ def people_search():
 @app.route("/notification-preview", methods=["GET", "POST"])
 def logs():
     app.config["LAB_NOTIFICATION_FLAG"] = CHALLENGES["logs"]["flag"]
-    template = request.form.get("template", "Bonjour {{ name }}, votre ticket est pret.")
+    template = request.form.get("template", "Bonjour {{ name }}, votre ticket est prêt.")
     rendered = ""
     error = None
     context = {"name": "Alice", "ticket_id": "101", "product": "DevSec Studio"}
@@ -575,12 +597,13 @@ def profile_editor():
     if request.method == "POST":
         # VULNERABLE BY DESIGN: mass assignment.
         # Every posted field is copied into the user object, including privileged fields.
-        injected_body = request.form.get("injected_body", "")
-        normalized_body = injected_body.replace('"', "'").replace(" ", "").lower()
-        if "role:'admin'" in normalized_body or "role=admin" in normalized_body:
-            user["role"] = "admin"
-        for key, value in request.form.items():
-            if key == "injected_body":
+        posted_fields = dict(request.form.items())
+        extra_param = posted_fields.pop("extra_param", "").strip()
+        if "=" in extra_param:
+            key, value = extra_param.split("=", 1)
+            posted_fields[key.strip()] = value.strip()
+        for key, value in posted_fields.items():
+            if key == "role" and not value.strip():
                 continue
             if value.lower() == "true":
                 user[key] = True

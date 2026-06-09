@@ -3,23 +3,23 @@
 <section class="panel">
   {% include "_success.html" %}
   <p class="eyebrow">Token client</p>
-  <h1>Export client securise</h1>
-  <p class="hint">Alice est developpeuse frontend et n'a normalement pas le droit de lancer un export client. L'equipe qui a mis en place ce module affirme que le jeton transmis au navigateur est "securise" parce qu'il n'est pas lisible au premier regard.</p>
+  <h1>Export client sécurisé</h1>
+  <p class="hint">Alice est développeuse frontend et n'a normalement pas le droit de lancer un export client. L'équipe qui a mis en place ce module affirme que le jeton transmis au navigateur est « sécurisé » parce qu'il n'est pas lisible au premier regard.</p>
 
   <div class="status-panel {{ 'ok' if can_export else 'blocked' }}">
-    <strong>Statut export:</strong>
+    <strong>Statut export :</strong>
     {% if can_export %}
-      Autorise par le jeton courant.
+      Autorisé par le jeton courant.
     {% else %}
-      Refuse pour Alice avec le jeton courant.
+      Refusé pour Alice avec le jeton courant.
     {% endif %}
   </div>
 
   <form method="get">
     <label>Token<input name="data" value="{{ data }}"></label>
-    <button type="submit">Verifier le jeton</button>
+    <button type="submit">Vérifier le jeton</button>
   </form>
-  <div class="result"><p>Jeton fourni a Alice:</p><code>{{ sample }}</code></div>
+  <div class="result"><p>Jeton fourni à Alice :</p><code>{{ sample }}</code></div>
   <dl>
     {% for key, value in payload.items() %}
       <div><dt>{{ key }}</dt><dd>{{ value }}</dd></div>
@@ -27,18 +27,18 @@
   </dl>
   {% if export_preview %}
     <div class="result">
-      <p>Apercu export client:</p>
+      <p>Aperçu export client :</p>
       <pre>{{ export_preview }}</pre>
     </div>
   {% endif %}
   <div class="hint-stack">
     <details>
       <summary>Indice 1</summary>
-      <p>Pense a une faiblesse cryptographique: une donnee peut etre encodee et transportee par le client sans etre protegee contre la modification.</p>
+      <p>Pense à une faiblesse cryptographique : une donnée peut être encodée et transportée par le client sans être protégée contre la modification.</p>
     </details>
     <details>
       <summary>Indice 2</summary>
-      <p>Base64 n'est pas du chiffrement. Decode le JSON du jeton, change <code>export_allowed</code> de <code>false</code> a <code>true</code>, puis reencode le token.</p>
+      <p>Base64 n'est pas du chiffrement. Décode le JSON du jeton, change <code>export_allowed</code> de <code>false</code> à <code>true</code>, puis réencode le token.</p>
     </details>
   </div>
 </section>

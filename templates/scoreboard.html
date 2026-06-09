@@ -3,7 +3,7 @@
 <section class="panel">
   <p class="eyebrow">Progression personnelle</p>
   <h1>Scoreboard</h1>
-  <p>{{ solved_count }} challenge{{ '' if solved_count == 1 else 's' }} reussi{{ '' if solved_count == 1 else 's' }} sur {{ total_challenges }}.</p>
+  <p>{{ solved_count }} challenge{{ '' if solved_count == 1 else 's' }} réussi{{ '' if solved_count == 1 else 's' }} sur {{ total_challenges }}.</p>
   <div class="score-grid">
     {% for challenge in challenges %}
       <article class="{{ 'solved' if challenge.solved else '' }}">
@@ -12,7 +12,7 @@
         {% if challenge.solved %}
           <code>{{ challenge.flag }}</code>
         {% else %}
-          <p>Explore la mission et declenche le message de reussite.</p>
+          <p>Explore la mission et déclenche le message de réussite.</p>
         {% endif %}
       </article>
     {% endfor %}

@@ -3,7 +3,7 @@
 <section class="panel">
   {% include "_success.html" %}
   <p class="eyebrow">Centre documentaire</p>
-  <h1>Telechargement de fichier</h1>
+  <h1>Téléchargement de fichier</h1>
   <p class="hint">Documents publics disponibles:</p>
   <div class="doc-list">
     {% for public_file in public_files %}
@@ -15,17 +15,17 @@
     <button type="submit">Lire</button>
   </form>
   <div class="result">
-    <p>Contenu retourne:</p>
+    <p>Contenu retourné :</p>
     <pre>{{ content }}</pre>
   </div>
   <div class="hint-stack">
     <details>
       <summary>Indice 1</summary>
-      <p>Pense a une vulnerabilite de lecture de fichier ou de chemin controle par l'utilisateur. La bonne demarche consiste a observer les noms de fichiers publics, puis a chercher une reference a un emplacement prive.</p>
+      <p>Pense à une vulnérabilité de lecture de fichier ou de chemin contrôlé par l'utilisateur. La bonne démarche consiste à observer les noms de fichiers publics, puis à chercher une référence vers un emplacement privé.</p>
     </details>
     <details>
       <summary>Indice 2</summary>
-      <p>Lis d'abord <code>engineering-notes.txt</code>. Il mentionne un chemin prive a tester: <code>../private/customer_export.csv</code>.</p>
+      <p>Lis d'abord <code>engineering-notes.txt</code>. Il mentionne un chemin privé à tester : <code>../private/customer_export.csv</code>.</p>
     </details>
   </div>
 </section>

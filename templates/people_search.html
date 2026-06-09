@@ -4,7 +4,7 @@
   {% include "_success.html" %}
   <p class="eyebrow">Annuaire interne</p>
   <h1>Recherche de droits</h1>
-  <p class="hint">L'outil permet aux developpeurs de verifier rapidement l'equipe et le niveau d'acces associes a un email interne.</p>
+  <p class="hint">L'outil permet aux développeurs de vérifier rapidement l'équipe et le niveau d'accès associés à un e-mail interne.</p>
   <p class="hint">Emails de test:</p>
   <div class="doc-list">
     {% for sample in sample_emails %}
@@ -13,12 +13,12 @@
   </div>
   <form method="get">
     <label>Email<input name="email" value="{{ email }}"></label>
-    <label class="checkline"><input type="checkbox" name="diagnostic" value="1" {% if diagnostic %}checked{% endif %}> Afficher le diagnostic developpeur</label>
+    <label class="checkline"><input type="checkbox" name="diagnostic" value="1" {% if diagnostic %}checked{% endif %}> Afficher le diagnostic développeur</label>
     <button type="submit">Rechercher</button>
   </form>
   {% if diagnostic %}
     <div class="result">
-      <p>Diagnostic developpeur:</p>
+      <p>Diagnostic développeur :</p>
       <code>{{ query }}</code>
     </div>
   {% endif %}
@@ -33,7 +33,7 @@
   <div class="hint-stack">
     <details>
       <summary>Indice 1</summary>
-      <p>Pense a une injection dans une requete construite avec une valeur utilisateur. Commence par chercher si ta saisie est placee entre quotes dans une requete.</p>
+      <p>Pense à une injection dans une requête construite avec une valeur utilisateur. Commence par chercher si ta saisie est placée entre guillemets dans une requête.</p>
     </details>
     <details>
       <summary>Indice 2</summary>

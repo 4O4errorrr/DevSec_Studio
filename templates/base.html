@@ -17,7 +17,7 @@
         <a href="{{ url_for('scoreboard') }}">Score {{ solved_count }}/{{ total_challenges }}</a>
         {% if current_user %}
           <a href="{{ url_for('dashboard') }}">Tickets</a>
-          <a href="{{ url_for('logout') }}">Deconnexion</a>
+          <a href="{{ url_for('logout') }}">Déconnexion</a>
         {% else %}
           <a href="{{ url_for('login') }}">Connexion</a>
         {% endif %}
@@ -25,7 +25,7 @@
     </header>
     <main>
       <section class="warning">
-        Ce lab est volontairement vulnerable afin de sensibiliser aux enjeux de la cybersecurite. Les comportements presentes ne sont pas a reproduire sur des environnements reels.
+        Ce lab est volontairement vulnérable afin de sensibiliser aux enjeux de la cybersécurité. Les comportements présentés ne sont pas à reproduire sur des environnements réels.
       </section>
       {% block content %}{% endblock %}
     </main>

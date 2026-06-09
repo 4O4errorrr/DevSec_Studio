@@ -3,14 +3,14 @@
 <section class="panel">
   {% include "_success.html" %}
   <p class="eyebrow">Notifications client</p>
-  <h1>Le modele de notification</h1>
-  <p class="hint">L'equipe support a cree un outil pour previsualiser les notifications. Les variables comme <code>{{ "{{ name }}" }}</code> sont remplacees cote serveur avant l'envoi.</p>
+  <h1>Le modèle de notification</h1>
+  <p class="hint">L'équipe support a créé un outil pour prévisualiser les notifications avant envoi. Les rédacteurs utilisent des variables métier dans leurs modèles, et le rendu est calculé directement par l'application.</p>
 
   <section class="request-lab">
-    <h2>Previsualiser un modele</h2>
+    <h2>Prévisualiser un modèle</h2>
     <form method="post">
-      <label>Modele<textarea name="template" rows="5">{{ template }}</textarea></label>
-      <button type="submit">Previsualiser</button>
+      <label>Modèle<textarea name="template" rows="5">{{ template }}</textarea></label>
+      <button type="submit">Prévisualiser</button>
     </form>
   </section>
 
@@ -18,7 +18,7 @@
     <p class="error">{{ error }}</p>
   {% else %}
     <div class="result">
-      <p>Rendu serveur:</p>
+      <p>Rendu serveur :</p>
       <pre>{{ rendered }}</pre>
     </div>
   {% endif %}
@@ -26,11 +26,11 @@
   <div class="hint-stack">
     <details>
       <summary>Indice 1</summary>
-      <p>Pense a une injection cote serveur dans un moteur de template. Verifie d'abord si une expression est evaluee.</p>
+      <p>Pense à une injection côté serveur dans un moteur de template. Vérifie d'abord si une expression est évaluée.</p>
     </details>
     <details>
       <summary>Indice 2</summary>
-      <p>Teste une expression comme <code>{{ "{{ 7 * 7 }}" }}</code>. Si elle est evaluee, cherche si l'objet <code>config</code> est accessible avec <code>{{ "{{ config }}" }}</code>.</p>
+      <p>Teste une expression comme <code>{{ "{{ 7 * 7 }}" }}</code>. Si elle est évaluée, cherche si l'objet <code>config</code> est accessible avec <code>{{ "{{ config }}" }}</code>.</p>
     </details>
   </div>
 </section>

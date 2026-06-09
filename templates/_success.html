@@ -1,9 +1,11 @@
 {% if success %}
   <section class="success-box">
-    <p class="eyebrow">Challenge reussi</p>
+    <p class="eyebrow">Challenge réussi</p>
     <h2>{{ success.name }}</h2>
-    <p><strong>Vulnerabilite exploitee:</strong> {{ success.vulnerability }}</p>
-    <p><strong>Impact reel possible:</strong> {{ success.impact }}</p>
+    <p><strong>Vulnérabilité exploitée :</strong> {{ success.vulnerability }}</p>
+    <p><strong>Pourquoi c'était possible :</strong> {{ success.why }}</p>
+    <p><strong>Impact avec un vrai attaquant :</strong> {{ success.impact }}</p>
+    <p><strong>Bonnes pratiques :</strong> {{ success.fix }}</p>
     <div class="flag">Flag: <code>{{ success.flag }}</code></div>
   </section>
 {% endif %}
