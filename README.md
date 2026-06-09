@@ -1,6 +1,6 @@
 # DevSec Studio
 
-Lab local volontairement vulnérable pour s'entraîner à repérer des erreurs de sécurité courantes côté développeur.
+Un environnement local volontairement vulnérable pour s'exercer à identifier les failles de sécurité les plus courantes pouvant se glisser dans du code.
 
 > A utiliser uniquement en local. Ne pas exposer sur Internet.
 
@@ -37,6 +37,4 @@ charlie / charlie
 
 ## Objectif
 
-Explore l'application, cherche les failles cachees dans les tickets, fichiers, webhooks, notifications, tokens et profils, puis valide les challenges pour faire progresser le scoreboard.
-
-Chaque challenge contient deux niveaux d'indice directement dans sa page.
+Explore l'application à ton rythme et pars à la chasse aux failles dissimulées dans les tickets, exports, webhooks, notifications et profils. Des indices sont semés dans chaque écran pour t'accompagner mais avant d'y recourir, rappelle-toi qu'en cybersécurité, la curiosité et la recherche sont tes meilleures armes.
