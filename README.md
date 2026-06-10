@@ -3,6 +3,8 @@
 Un environnement local volontairement vulnérable pour s'exercer à identifier les failles de sécurité les plus courantes pouvant se glisser dans du code.
 
 > A utiliser uniquement en local. Ne pas exposer sur Internet.
+> 
+<img width="1693" height="929" alt="image" src="https://github.com/user-attachments/assets/aaa7fc62-b8d8-4e80-9b19-17eb83773d0a" />
 
 ## Lancer le lab
 
