@@ -10,14 +10,8 @@ if [ ! -x ".venv/bin/python" ]; then
   "$PYTHON_BIN" -m venv .venv
 fi
 
-if [ -d "vendor/wheels" ]; then
-  echo "Installation des dependances depuis vendor/wheels (mode hors ligne)..."
-  .venv/bin/python -m pip install --no-index --find-links "vendor/wheels" -r requirements.txt
-else
-  echo "Installation des dependances depuis PyPI..."
-  echo "Pour un lancement sans Internet, prepare le dossier vendor/wheels avant de distribuer le lab."
-  .venv/bin/python -m pip install -r requirements.txt
-fi
+echo "Installation des dependances..."
+.venv/bin/python -m pip install -r requirements.txt
 
 if [ ! -f ".env" ]; then
   echo "Generation du fichier .env local..."

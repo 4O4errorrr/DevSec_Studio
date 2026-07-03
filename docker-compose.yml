@@ -1,8 +1,0 @@
-services:
-  devsec-studio:
-    build: .
-    ports:
-      - "5000:5000"
-    environment:
-      FLASK_SECRET_KEY: "${FLASK_SECRET_KEY:-change-me-local-session-secret}"
-      FLAG_SECRET: "${FLAG_SECRET:-change-me-workshop-flag-secret}"
