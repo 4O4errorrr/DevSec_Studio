@@ -436,7 +436,7 @@ def feedback():
         # VULNERABLE BY DESIGN: stored XSS.
         # User input is stored and rendered with |safe in the template.
         FEEDBACKS.append({"author": author, "content": content})
-        if any(marker in content.lower() for marker in ["<script", "onerror=", "javascript:"]):
+        if any(marker in content.lower() for marker in ["<script", "onerror=", "onload=", "javascript:"]):
             mark_solved("feedback")
         return redirect(url_for("feedback"))
     success = CHALLENGES["feedback"] if "feedback" in solved_ids() else None

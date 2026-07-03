@@ -4,9 +4,23 @@
   {% include "_success.html" %}
   <p class="eyebrow">Retours produit</p>
   <h1>Feedback de l'équipe</h1>
+  <p class="hint">L'équipe produit utilise ce mur pour partager des retours de revue. Pour faciliter la lecture, le champ message accepte un format riche inspiré de Markdown : texte important, liens, images et extraits de mise en forme.</p>
+
+  <section class="request-lab">
+    <h2>Aide à la rédaction</h2>
+    <p class="hint">Formats utilisés par l'équipe :</p>
+    <div class="doc-list">
+      <code>**important**</code>
+      <code>_à vérifier_</code>
+      <code>&lt;a href="https://example.com"&gt;lien&lt;/a&gt;</code>
+      <code>&lt;img src="https://example.com/image.png"&gt;</code>
+    </div>
+    <p class="hint">Les messages sont conservés côté serveur, puis réaffichés aux prochains visiteurs du mur.</p>
+  </section>
+
   <form method="post">
     <label>Auteur<input name="author" value="{{ current_user.username if current_user else 'anonymous' }}"></label>
-    <label>Message<textarea name="content" rows="4" placeholder="Partager un retour de revue..."></textarea></label>
+    <label>Message enrichi<textarea name="content" rows="5" placeholder="Ex: **À vérifier** : ajouter le lien vers la revue produit."></textarea></label>
     <button type="submit">Publier</button>
   </form>
   <div class="messages">
@@ -20,11 +34,11 @@
   <div class="hint-stack">
     <details>
       <summary>Indice 1</summary>
-      <p>Pense à une injection de contenu qui reste stockée puis s'affiche chez les prochains visiteurs.</p>
+      <p>Publie d'abord un petit fragment HTML inoffensif, comme un lien ou une image. Observe si le navigateur l'interprète vraiment ou s'il l'affiche comme du texte.</p>
     </details>
     <details>
       <summary>Indice 2</summary>
-      <p>Publie un message contenant du HTML actif, par exemple <code>&lt;script&gt;alert("stored")&lt;/script&gt;</code>, puis recharge la page.</p>
+      <p>Une image cassée peut déclencher du JavaScript via un gestionnaire d'événement. Essaie <code>&lt;img src=x onerror=alert("stored")&gt;</code>, puis recharge la page.</p>
     </details>
   </div>
 </section>
