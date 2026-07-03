@@ -10,6 +10,18 @@
   <h1>Index of /debug/</h1>
   <p class="hint">Le serveur expose le contenu d'un répertoire de debug. Certains fichiers semblent anodins, d'autres méritaient de rester internes.</p>
 
+  {% if render_mode %}
+  <div class="directory-listing raw-listing">
+    <pre>Index of /debug/
+
+Name                    Last modified        Size
+<a href="#">../</a>                     -                    -
+{% for file in files -%}
+<a href="{{ url_for('debug_config') }}?file={{ file.name }}">{{ "%-22s"|format(file.name) }}</a> {{ file.modified }}     {{ "%7s"|format(file.size) }}
+{% endfor %}
+DevSec Studio file server at {{ request.host }}</pre>
+  </div>
+  {% else %}
   <div class="directory-listing">
     <h2>Index of /debug/</h2>
     <table>
@@ -40,16 +52,25 @@
     </table>
     <address>DevSec Studio file server at {{ request.host }}</address>
   </div>
+  {% endif %}
 
   {% if selected_file %}
-    <div class="result">
-      <p>Lecture de <strong>{{ selected_file }}</strong>:</p>
-      {% if content %}
-        <pre>{{ content }}</pre>
-      {% else %}
-        <pre>Fichier introuvable.</pre>
-      {% endif %}
-    </div>
+    {% if render_mode %}
+      <div class="directory-listing raw-listing file-view">
+        <pre>File: /debug/{{ selected_file }}
+
+{% if content %}{{ content }}{% else %}Fichier introuvable.{% endif %}</pre>
+      </div>
+    {% else %}
+      <div class="result">
+        <p>Lecture de <strong>{{ selected_file }}</strong>:</p>
+        {% if content %}
+          <pre>{{ content }}</pre>
+        {% else %}
+          <pre>Fichier introuvable.</pre>
+        {% endif %}
+      </div>
+    {% endif %}
   {% endif %}
 
   {% if selected_file == "app.conf" %}

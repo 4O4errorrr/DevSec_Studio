@@ -518,6 +518,31 @@ summary,
   font-size: 13px;
 }
 
+.directory-listing.raw-listing {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+}
+
+.directory-listing.raw-listing pre {
+  min-width: 660px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: #ffffff;
+  color: #111827;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 14px;
+  line-height: 1.35;
+  padding: 18px;
+  white-space: pre;
+}
+
+.directory-listing.raw-listing.file-view pre {
+  min-width: 0;
+  white-space: pre-wrap;
+}
+
 .success-box {
   margin-bottom: 24px;
   border: 1px solid rgba(95, 194, 186, 0.45);

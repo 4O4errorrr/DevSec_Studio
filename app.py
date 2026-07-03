@@ -320,6 +320,7 @@ def inject_user():
         "solved_count": len(solved_ids()),
         "total_challenges": len(CHALLENGES),
         "participant_label": participant_label(),
+        "render_mode": bool(os.environ.get("PORT")),
     }
 
 
