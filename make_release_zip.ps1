@@ -19,6 +19,7 @@ $items = @(
   "prepare_offline_wheels.ps1",
   "prepare_offline_wheels.sh",
   ".env.example",
+  "debug_files",
   "templates",
   "static",
   "vendor"

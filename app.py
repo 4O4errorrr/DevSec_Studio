@@ -5,6 +5,7 @@ import json
 import os
 import secrets
 import sqlite3
+from pathlib import Path
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
@@ -27,12 +28,14 @@ def load_dotenv_file(path=".env"):
 load_dotenv_file()
 
 app = Flask(__name__)
-app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+if os.environ.get("PORT"):
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", secrets.token_hex(32))
 FLAG_SECRET = os.environ.get("FLAG_SECRET", secrets.token_hex(32))
 app.config["SUPPORT_EXPORT_TOKEN"] = "support-export-dev-42"
 app.config["NOTIFICATION_SIGNING_KEY"] = "notify-signing-key-lab"
 SCORES_BY_PARTICIPANT = {}
+DEBUG_FILES_DIR = Path(__file__).resolve().parent / "debug_files"
 
 
 def build_flag(challenge_id):
@@ -409,7 +412,7 @@ def feedback():
 
 @app.route("/webhook-tester")
 def webhook_tester():
-    target = request.args.get("url", url_for("internal_health", _external=True))
+    target = request.args.get("url", url_for("partner_callback_status", _external=True))
     body = ""
     error = None
     parsed = urlparse(target)
@@ -426,6 +429,11 @@ def webhook_tester():
     if "INTERNAL_REPORT_TOKEN" in body:
         success = mark_solved("webhook")
     return render_template("webhook.html", target=target, body=body, error=error, success=success)
+
+
+@app.route("/callbacks/partner-status")
+def partner_callback_status():
+    return "callback=ok; partner=acme-payments; last_check=green; diagnostic_ref=/internal/health"
 
 
 @app.route("/internal/metadata")
@@ -449,34 +457,19 @@ def internal_secrets():
 def debug_config():
     # VULNERABLE BY DESIGN: security misconfiguration.
     # A debug endpoint exposes details useful in later challenges.
-    files = {
-        "README.txt": {
-            "modified": "2026-06-04 09:12",
-            "size": "142 B",
-            "description": "Notes",
-            "content": "Debug dropzone - fichiers temporaires generes par les outils de developpement.\nNe pas exposer ce repertoire en production.\n",
-        },
-        "app.conf": {
-            "modified": "2026-06-04 09:18",
-            "size": "312 B",
-            "description": "Configuration",
-            "content": (
-                "APP_ENV=development\n"
-                "DEBUG=true\n"
-                "BACKUP_EXPORT=********\n"
-                "LEGACY_KEYS_FILE=********\n"
-                "INTERNAL_METADATA=********\n"
-                "CONFIG_VIEWER_LOGIN=config_reader\n"
-                "CONFIG_VIEWER_PASSWORD=reader-2026\n"
-            ),
-        },
-        "old-app.conf.bak": {
-            "modified": "2026-06-03 18:41",
-            "size": "71 B",
-            "description": "Backup",
-            "content": "Ancienne sauvegarde: voir app.conf pour la configuration courante.\n",
-        },
-    }
+    files = []
+    for path in sorted(DEBUG_FILES_DIR.iterdir()):
+        if not path.is_file():
+            continue
+        stat = path.stat()
+        files.append(
+            {
+                "name": path.name,
+                "modified": "2026-06-04 09:18" if path.name == "app.conf" else "2026-06-04 09:12",
+                "size": f"{stat.st_size} B",
+                "description": "Configuration" if path.name == "app.conf" else "Fichier texte",
+            }
+        )
     full_config = (
         "APP_ENV=development\n"
         "DEBUG=true\n"
@@ -488,8 +481,10 @@ def debug_config():
         f"FLAG={CHALLENGES['debug']['flag']}\n"
     )
     selected_file = request.args.get("file", "")
-    file_record = files.get(selected_file)
-    content = file_record["content"] if file_record else None
+    content = None
+    selected_path = (DEBUG_FILES_DIR / selected_file).resolve() if selected_file else None
+    if selected_path and selected_path.parent == DEBUG_FILES_DIR and selected_path.is_file():
+        content = selected_path.read_text(encoding="utf-8")
     if selected_file == "app.conf" and request.args.get("user") == "config_reader" and request.args.get("password") == "reader-2026":
         content = full_config
         success = mark_solved("debug")

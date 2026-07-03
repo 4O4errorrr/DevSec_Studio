@@ -3,6 +3,7 @@
 <section class="panel">
   <p class="eyebrow">Progression personnelle</p>
   <h1>Scoreboard</h1>
+  <p class="hint">Score associé à {{ participant_label }}.</p>
   <p>{{ solved_count }} challenge{{ '' if solved_count == 1 else 's' }} réussi{{ '' if solved_count == 1 else 's' }} sur {{ total_challenges }}.</p>
   <div class="score-grid">
     {% for challenge in challenges %}
