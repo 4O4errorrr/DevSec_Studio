@@ -8,13 +8,47 @@
 
   <section class="request-lab">
     <h2>Swagger interne</h2>
-    <p class="hint">Le front utilise aussi une API REST pour sauvegarder le profil. La documentation interne indique seulement deux champs modifiables.</p>
-    <pre>PATCH /api/profile
+    <p class="hint">Le front utilise plusieurs routes REST pour afficher et mettre à jour les préférences du profil. La documentation interne indique seulement deux champs modifiables sur l'identité principale.</p>
+    <pre>GET /api/profile
+Response 200
+
+{
+  "id": 1,
+  "email": "{{ user.email }}",
+  "team": "{{ user.team }}",
+  "role": "{{ user.role }}",
+  "editable_fields": ["email", "team"]
+}
+
+PATCH /api/profile
 Content-Type: application/json
 
 {
   "email": "{{ user.email }}",
   "team": "{{ user.team }}"
+}
+
+PATCH /api/profile/preferences
+Content-Type: application/json
+
+{
+  "theme": "dark",
+  "notifications": true,
+  "language": "fr"
+}
+
+PATCH /api/profile/avatar
+Content-Type: application/json
+
+{
+  "avatar_url": "https://cdn.devsec.local/avatars/alice.png"
+}
+
+POST /api/profile/password/check
+Content-Type: application/json
+
+{
+  "current_password": "********"
 }</pre>
   </section>
 
@@ -76,6 +110,19 @@ Content-Type: application/json
   const sendProfileApi = document.querySelector("#sendProfileApi");
   const profileApiBody = document.querySelector("#profileApiBody");
   const profileApiResult = document.querySelector("#profileApiResult");
+
+  profileApiBody?.addEventListener("keydown", (event) => {
+    if (event.key !== "Tab") {
+      return;
+    }
+    event.preventDefault();
+    const start = profileApiBody.selectionStart;
+    const end = profileApiBody.selectionEnd;
+    const indentation = "  ";
+    profileApiBody.value = `${profileApiBody.value.slice(0, start)}${indentation}${profileApiBody.value.slice(end)}`;
+    profileApiBody.selectionStart = start + indentation.length;
+    profileApiBody.selectionEnd = start + indentation.length;
+  });
 
   sendProfileApi?.addEventListener("click", async () => {
     profileApiResult.textContent = "Requête en cours...";
