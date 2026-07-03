@@ -398,7 +398,14 @@ def inject_user():
 
 @app.before_request
 def require_participant_name():
-    allowed_endpoints = {"welcome", "static"}
+    allowed_endpoints = {
+        "welcome",
+        "static",
+        "partner_callback_status",
+        "internal_health",
+        "internal_metadata",
+        "internal_secrets",
+    }
     if request.endpoint in allowed_endpoints or request.endpoint is None:
         return None
     if not participant_name():

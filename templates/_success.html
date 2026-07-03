@@ -1,4 +1,5 @@
 {% if success %}
+  <div class="confetti-layer" aria-hidden="true"></div>
   <section class="success-box">
     <p class="eyebrow">Challenge réussi</p>
     <h2>{{ success.name }}</h2>
@@ -8,4 +9,28 @@
     <p><strong>Bonnes pratiques :</strong> {{ success.fix }}</p>
     <div class="flag">Flag: <code>{{ success.flag }}</code></div>
   </section>
+  <script>
+    (() => {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+      }
+      const layer = document.querySelector(".confetti-layer");
+      if (!layer) {
+        return;
+      }
+      const colors = ["#5FC2BA", "#ffffff", "#3B556D", "#8ee7df", "#d7e0ea"];
+      const count = window.matchMedia("(max-width: 640px)").matches ? 42 : 72;
+      for (let index = 0; index < count; index += 1) {
+        const piece = document.createElement("span");
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.background = colors[index % colors.length];
+        piece.style.animationDelay = `${Math.random() * 0.35}s`;
+        piece.style.animationDuration = `${1.8 + Math.random() * 1.4}s`;
+        piece.style.transform = `rotate(${Math.random() * 180}deg)`;
+        piece.style.setProperty("--drift", `${Math.floor(Math.random() * 180) - 90}`);
+        layer.appendChild(piece);
+      }
+      window.setTimeout(() => layer.remove(), 4200);
+    })();
+  </script>
 {% endif %}
