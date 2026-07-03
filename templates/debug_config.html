@@ -38,7 +38,7 @@
         {% endfor %}
       </tbody>
     </table>
-    <address>DevSec Studio file server at 127.0.0.1 Port 5000</address>
+    <address>DevSec Studio file server at {{ request.host }}</address>
   </div>
 
   {% if selected_file %}
