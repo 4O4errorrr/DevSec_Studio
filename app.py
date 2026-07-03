@@ -3,6 +3,7 @@ import hashlib
 import hmac
 import json
 import os
+import re
 import secrets
 import sqlite3
 from pathlib import Path
@@ -110,8 +111,8 @@ TICKETS = {
 }
 
 FEEDBACKS = [
-    {"author": "alice", "content": "Le dashboard de revue de code est beaucoup plus clair."},
-    {"author": "bob", "content": "À vérifier : les exports doivent rester accessibles aux leads seulement."},
+    {"author": "alice", "content": "Le dashboard de revue de code est beaucoup plus clair.", "rendered": "Le dashboard de revue de code est beaucoup plus clair."},
+    {"author": "bob", "content": "À vérifier : les exports doivent rester accessibles aux leads seulement.", "rendered": "À vérifier : les exports doivent rester accessibles aux leads seulement."},
 ]
 
 SECURITY_LOGS = [
@@ -333,6 +334,16 @@ def build_people_db():
     return connection
 
 
+def render_feedback_markup(content):
+    # VULNERABLE BY DESIGN: this partial Markdown renderer keeps raw HTML.
+    rendered = content
+    rendered = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", rendered)
+    rendered = re.sub(r"_(.+?)_", r"<em>\1</em>", rendered)
+    rendered = re.sub(r"!\[([^\]]*)\]\(([^)]+)\)", r'<img src="\2" alt="\1">', rendered)
+    rendered = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r'<a href="\2">\1</a>', rendered)
+    return rendered
+
+
 def encode_token(payload):
     raw = json.dumps(payload).encode("utf-8")
     return base64.urlsafe_b64encode(raw).decode("utf-8")
@@ -434,8 +445,8 @@ def feedback():
         author = request.form.get("author", "anonymous")
         content = request.form.get("content", "")
         # VULNERABLE BY DESIGN: stored XSS.
-        # User input is stored and rendered with |safe in the template.
-        FEEDBACKS.append({"author": author, "content": content})
+        # User input is converted with an incomplete Markdown renderer, then rendered with |safe in the template.
+        FEEDBACKS.append({"author": author, "content": content, "rendered": render_feedback_markup(content)})
         if any(marker in content.lower() for marker in ["<script", "onerror=", "onload=", "javascript:"]):
             mark_solved("feedback")
         return redirect(url_for("feedback"))

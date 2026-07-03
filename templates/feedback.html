@@ -27,7 +27,7 @@
     {% for item in feedbacks %}
       <article>
         <h2>{{ item.author }}</h2>
-        <div>{{ item.content | safe }}</div>
+        <div>{{ item.rendered | safe }}</div>
       </article>
     {% endfor %}
   </div>
