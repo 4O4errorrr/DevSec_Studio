@@ -231,7 +231,7 @@ CHALLENGES = {
         "name": "Le lien magique",
         "flag": build_flag("admin"),
         "vulnerability": "Authentification incorrecte : un lien de connexion sans mot de passe utilise un token prédictible.",
-        "why": "La fonction `magic_token` dérive le token depuis la partie locale de l'e-mail, par exemple `ml-alice-2026`.",
+        "why": "La fonction `magic_token` dérive le token depuis la partie locale de l'e-mail, par exemple `alice.devsec`.",
         "impact": "Avec un vrai attaquant, il serait possible de forger un lien pour prendre le contrôle d'un autre compte sans connaître son mot de passe.",
         "fix": "Générer des tokens longs, aléatoires, à usage unique, expirables et stockés côté serveur.",
     },
@@ -255,7 +255,7 @@ CHALLENGES = {
         "name": "Le profil trop flexible",
         "flag": build_flag("profile"),
         "vulnerability": "Mass assignment : le serveur accepte et applique des champs qui ne devraient pas être modifiables.",
-        "why": "La route parcourt tous les champs de `request.form` et les copie dans l'objet utilisateur sans liste blanche.",
+        "why": "La route `/api/profile` parcourt tous les champs JSON reçus et les copie dans l'objet utilisateur sans liste blanche.",
         "impact": "Avec un vrai attaquant, un utilisateur peut changer son rôle et obtenir des droits d'administration sans workflow d'autorisation.",
         "fix": "Définir une liste blanche stricte des champs modifiables et ignorer tout champ sensible reçu depuis le client.",
     },
@@ -265,6 +265,25 @@ CHALLENGES = {
 def current_user():
     user_id = session.get("user_id")
     return USERS.get(user_id)
+
+
+def current_profile():
+    user = current_user()
+    if not user:
+        return None
+    profile = session.get("profile_state")
+    if not profile or profile.get("id") != user["id"]:
+        baseline = USER_BASELINE[user["id"]]
+        profile = {
+            "id": user["id"],
+            "username": user["username"],
+            "email": baseline["email"],
+            "team": baseline["team"],
+            "role": baseline["role"],
+        }
+        session["profile_state"] = profile
+        session.modified = True
+    return profile
 
 
 def client_ip():
@@ -634,7 +653,7 @@ def admin_gate():
 def magic_token(email):
     # VULNERABLE BY DESIGN: predictable token.
     local_part = email.split("@", 1)[0]
-    return f"ml-{local_part}-2026"
+    return f"{local_part}.devsec"
 
 
 def verify_magic_link(email, token):
@@ -707,23 +726,19 @@ def notification_preview():
     return render_template("notification_preview.html", template=template, rendered=rendered, error=error, success=success)
 
 
-@app.route("/profile-editor", methods=["GET", "POST"])
+@app.route("/profile-editor")
 def profile_editor():
     if not current_user():
         return redirect(url_for("login"))
-    user = current_user()
+    user = current_profile()
     expected_profile = USER_BASELINE[user["id"]]
-    if request.method == "POST":
-        user["email"] = request.form.get("email", user["email"])
-        user["team"] = request.form.get("team", user["team"])
-        return redirect(url_for("profile_editor"))
     success = CHALLENGES["profile"] if "profile" in solved_ids() else None
     return render_template("profile_editor.html", user=user, expected_profile=expected_profile, success=success)
 
 
-@app.route("/api/profile", methods=["GET", "PATCH", "POST"])
+@app.route("/api/profile", methods=["GET", "PATCH"])
 def profile_api():
-    user = current_user()
+    user = current_profile()
     if not user:
         return jsonify({"error": "Authentification requise."}), 401
     if request.method == "GET":
@@ -745,9 +760,11 @@ def profile_api():
     # Every JSON field is copied into the user object, including privileged fields.
     for key, value in payload.items():
         user[key] = value
+    session["profile_state"] = user
+    session.modified = True
 
     success = None
-    if user.get("role") == "admin":
+    if payload.get("role") == "admin":
         success = mark_solved("profile")
 
     return jsonify(
@@ -775,3 +792,4 @@ if __name__ == "__main__":
     debug = render_port is None
 
     app.run(host=host, port=port, debug=debug)
+

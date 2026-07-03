@@ -4,12 +4,7 @@
   {% include "_success.html" %}
   <p class="eyebrow">Profil développeur</p>
   <h1>Le profil trop flexible</h1>
-  <p class="hint">Alice peut modifier son e-mail et son équipe depuis l'interface. En revanche, son rôle devrait rester contrôlé uniquement par le serveur et par un vrai workflow d'administration.</p>
-  <form method="post">
-    <label>Email<input name="email" value="{{ user.email }}"></label>
-    <label>Équipe<input name="team" value="{{ user.team }}"></label>
-    <button type="submit">Sauvegarder</button>
-  </form>
+  <p class="hint">Alice peut modifier son profil via une API REST utilisée par le front. En revanche, son rôle devrait rester contrôlé uniquement par le serveur et par un vrai workflow d'administration.</p>
 
   <section class="request-lab">
     <h2>Swagger interne</h2>
@@ -69,7 +64,7 @@ Content-Type: application/json
   <div class="hint-stack">
     <details>
       <summary>Indice 1</summary>
-      <p>Pense à une faille où le serveur accepte plus de champs que ceux affichés dans le formulaire. L'interface n'est pas une limite de sécurité.</p>
+      <p>Pense à une faille où le serveur accepte plus de champs que ceux documentés par l'API. La documentation client n'est pas une limite de sécurité.</p>
     </details>
     <details>
       <summary>Indice 2</summary>
