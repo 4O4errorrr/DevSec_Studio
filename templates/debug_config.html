@@ -17,7 +17,7 @@
 Name                    Last modified        Size
 <a href="#">../</a>                     -                    -
 {% for file in files -%}
-<a href="{{ url_for('debug_config') }}?file={{ file.name }}">{{ "%-22s"|format(file.name) }}</a> {{ file.modified }}     {{ "%7s"|format(file.size) }}
+<a href="{{ url_for('debug_file', selected_file=file.name) }}">{{ "%-22s"|format(file.name) }}</a> {{ file.modified }}     {{ "%7s"|format(file.size) }}
 {% endfor %}
 DevSec Studio file server at {{ request.host }}</pre>
   </div>
@@ -73,19 +73,6 @@ DevSec Studio file server at {{ request.host }}</pre>
     {% endif %}
   {% endif %}
 
-  {% if selected_file == "app.conf" %}
-    <section class="unlock-box">
-      <h2>Vue configuration complète</h2>
-      <p class="hint">La vue lambda masque certaines valeurs. Si tu identifies un compte de lecture dans le fichier, essaie de l'utiliser ici.</p>
-      <form method="get">
-        <input type="hidden" name="file" value="app.conf">
-        <label>Login<input name="user" value="{{ request.args.get('user', '') }}"></label>
-        <label>Password<input name="password" value="{{ request.args.get('password', '') }}"></label>
-        <button type="submit">Afficher la configuration complète</button>
-      </form>
-    </section>
-  {% endif %}
-
   <section class="quiz-box">
     <h2>Question bonus</h2>
     <p>Quelle vulnérabilité observes-tu sur cette page ?</p>
@@ -102,7 +89,7 @@ DevSec Studio file server at {{ request.host }}</pre>
     </details>
     <details>
       <summary>Indice 2</summary>
-      <p>Ouvre <code>app.conf</code>. Même si des valeurs sont masquées, cherche un couple login/password en dur, puis réutilise-le dans le formulaire de lecture complète.</p>
+      <p>Ouvre <code>README.txt</code> pour identifier l'interface oubliée, puis <code>app.conf</code> pour retrouver les informations qui permettent de l'utiliser.</p>
     </details>
   </div>
 </section>

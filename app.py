@@ -174,7 +174,7 @@ CHALLENGES = {
         "name": "La console oubliée",
         "flag": build_flag("debug"),
         "vulnerability": "Mauvaise configuration : un listing de répertoire expose un fichier de configuration et des identifiants.",
-        "why": "La route `/debug/config` simule un répertoire listable et laisse lire `app.conf`, qui contient des identifiants de consultation.",
+        "why": "La route `/debug/config` expose un répertoire listable. Le fichier `README.txt` divulgue `/adminoos`, et `app.conf` contient des identifiants de consultation.",
         "impact": "Avec un vrai attaquant, cela peut exposer des secrets, chemins internes, endpoints privés et faciliter une compromission en chaîne.",
         "fix": "Désactiver le directory listing, protéger les outils de debug et ne jamais stocker d'identifiants en clair dans des fichiers exposés.",
     },
@@ -454,8 +454,35 @@ def internal_secrets():
     return "INTERNAL_REPORT_TOKEN=report-dev-7788"
 
 
+@app.route("/debug/")
+def debug_root():
+    return redirect(url_for("debug_config"))
+
+
 @app.route("/debug/config")
 def debug_config():
+    return render_debug_directory()
+
+
+@app.route("/debug/config/<path:selected_file>")
+def debug_file(selected_file):
+    return render_debug_directory(selected_file)
+
+
+def full_debug_config():
+    return (
+        "APP_ENV=development\n"
+        "DEBUG=true\n"
+        "BACKUP_EXPORT=../private/customer_export.csv\n"
+        "LEGACY_KEYS_FILE=../private/api_keys.txt\n"
+        f"INTERNAL_METADATA={url_for('internal_metadata', _external=True)}\n"
+        "CONFIG_VIEWER_LOGIN=config_reader\n"
+        "CONFIG_VIEWER_PASSWORD=reader-2026\n"
+        f"FLAG={CHALLENGES['debug']['flag']}\n"
+    )
+
+
+def render_debug_directory(selected_file=None):
     # VULNERABLE BY DESIGN: security misconfiguration.
     # A debug endpoint exposes details useful in later challenges.
     files = []
@@ -471,26 +498,13 @@ def debug_config():
                 "description": "Configuration" if path.name == "app.conf" else "Fichier texte",
             }
         )
-    full_config = (
-        "APP_ENV=development\n"
-        "DEBUG=true\n"
-        "BACKUP_EXPORT=../private/customer_export.csv\n"
-        "LEGACY_KEYS_FILE=../private/api_keys.txt\n"
-        f"INTERNAL_METADATA={url_for('internal_metadata', _external=True)}\n"
-        "CONFIG_VIEWER_LOGIN=config_reader\n"
-        "CONFIG_VIEWER_PASSWORD=reader-2026\n"
-        f"FLAG={CHALLENGES['debug']['flag']}\n"
-    )
-    selected_file = request.args.get("file", "")
+    if selected_file is None:
+        selected_file = request.args.get("file", "")
     content = None
     selected_path = (DEBUG_FILES_DIR / selected_file).resolve() if selected_file else None
     if selected_path and selected_path.parent == DEBUG_FILES_DIR and selected_path.is_file():
         content = selected_path.read_text(encoding="utf-8")
-    if selected_file == "app.conf" and request.args.get("user") == "config_reader" and request.args.get("password") == "reader-2026":
-        content = full_config
-        success = mark_solved("debug")
-    else:
-        success = None
+    success = None
 
     quiz_answer = request.args.get("quiz", "")
     quiz_success = None
@@ -505,6 +519,23 @@ def debug_config():
         success=success,
         quiz_success=quiz_success,
     )
+
+
+@app.route("/adminoos", methods=["GET", "POST"])
+def adminoos():
+    content = None
+    error = None
+    success = None
+    login = ""
+    if request.method == "POST":
+        login = request.form.get("user", "")
+        password = request.form.get("password", "")
+        if login == "config_reader" and password == "reader-2026":
+            content = full_debug_config()
+            success = mark_solved("debug")
+        else:
+            error = "Identifiants invalides."
+    return render_template("adminoos.html", content=content, error=error, login=login, success=success)
 
 
 @app.route("/token")

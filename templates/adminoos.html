@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  {% include "_success.html" %}
+
+  <p class="eyebrow">Interface d'administration</p>
+  <h1>AdminOOS</h1>
+  <p class="hint">Console interne de consultation de configuration. L'accès est réservé aux comptes techniques autorisés.</p>
+
+  <section class="request-lab">
+    <h2>Lecture de configuration</h2>
+    <form method="post">
+      <label>Login<input name="user" value="{{ login }}"></label>
+      <label>Password<input name="password" type="password"></label>
+      <button type="submit">Afficher la configuration complète</button>
+    </form>
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+  </section>
+
+  {% if content %}
+    <div class="result">
+      <p>Configuration complète :</p>
+      <pre>{{ content }}</pre>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
