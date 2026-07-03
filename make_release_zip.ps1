@@ -16,13 +16,19 @@ $items = @(
   "README.md",
   "start_windows.bat",
   "start_unix.sh",
+  "prepare_offline_wheels.ps1",
+  "prepare_offline_wheels.sh",
   ".env.example",
   "templates",
-  "static"
+  "static",
+  "vendor"
 )
 
 foreach ($item in $items) {
-  Copy-Item -Path (Join-Path $projectRoot $item) -Destination $packageDir -Recurse -Force
+  $source = Join-Path $projectRoot $item
+  if (Test-Path $source) {
+    Copy-Item -Path $source -Destination $packageDir -Recurse -Force
+  }
 }
 
 if (Test-Path $zipPath) {
