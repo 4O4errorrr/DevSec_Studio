@@ -126,10 +126,42 @@ PRIVATE_FILES = {
 }
 
 PUBLIC_FILES = {
-    "release-notes.txt": "DevSec Studio 0.9 - ajout du module exports et du proxy webhook.\n",
-    "onboarding.txt": "Bienvenue dans le portail interne de formation sécurité développeur.\n",
-    "engineering-notes.txt": "Note dev : les exports clients ne doivent jamais être servis par ce module. Backup temporaire observé pendant les tests : ../private/customer_export.csv\n",
+    "docs/release-notes.txt": "DevSec Studio 0.9 - ajout du module exports et du proxy webhook.\n",
+    "docs/onboarding.txt": "Bienvenue dans le portail interne de formation sécurité développeur.\n",
+    "docs/procedure-export.txt": "Procédure export : les exports clients doivent être produits uniquement depuis le module Reporting, réservé aux leads.\n",
+    "notes/engineering-notes.txt": "Note dev : les exports clients ne doivent jamais être servis par ce module. Backup temporaire observé pendant les tests de chemin : ../private/customer_export.csv\n",
 }
+
+DOCUMENTS = [
+    {
+        "title": "Notes de version",
+        "category": "Produit",
+        "owner": "Equipe Platform",
+        "storage_key": "docs/release-notes.txt",
+        "visibility": "Public interne",
+    },
+    {
+        "title": "Onboarding développeur",
+        "category": "RH / IT",
+        "owner": "Equipe DevRel",
+        "storage_key": "docs/onboarding.txt",
+        "visibility": "Public interne",
+    },
+    {
+        "title": "Procédure export",
+        "category": "Reporting",
+        "owner": "Equipe Data",
+        "storage_key": "docs/procedure-export.txt",
+        "visibility": "Public interne",
+    },
+    {
+        "title": "Notes d'intégration",
+        "category": "Développement",
+        "owner": "Equipe Platform",
+        "storage_key": "notes/engineering-notes.txt",
+        "visibility": "Dev interne",
+    },
+]
 
 PROMOS = [
     ("alice@devsec.local", "Frontend", "Vue tickets frontend"),
@@ -376,7 +408,7 @@ def ticket(ticket_id):
 
 @app.route("/download")
 def download():
-    filename = request.args.get("file", "release-notes.txt")
+    filename = request.args.get("file", "docs/release-notes.txt")
     # VULNERABLE BY DESIGN: path traversal simulation.
     # The app trusts a user-controlled path and allows ../private/* to be reached.
     if filename.startswith("../private/"):
@@ -391,7 +423,7 @@ def download():
         "download.html",
         filename=filename,
         content=content,
-        public_files=PUBLIC_FILES.keys(),
+        documents=DOCUMENTS,
         success=success,
     )
 
