@@ -9,6 +9,7 @@ from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 from flask import Flask, redirect, render_template, render_template_string, request, session, url_for
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 
 def load_dotenv_file(path=".env"):
@@ -26,10 +27,12 @@ def load_dotenv_file(path=".env"):
 load_dotenv_file()
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", secrets.token_hex(32))
 FLAG_SECRET = os.environ.get("FLAG_SECRET", secrets.token_hex(32))
 app.config["SUPPORT_EXPORT_TOKEN"] = "support-export-dev-42"
 app.config["NOTIFICATION_SIGNING_KEY"] = "notify-signing-key-lab"
+SCORES_BY_PARTICIPANT = {}
 
 
 def build_flag(challenge_id):
@@ -228,15 +231,55 @@ def current_user():
     return USERS.get(user_id)
 
 
+def client_ip():
+    forwarded_for = request.headers.get("X-Forwarded-For", "")
+    if forwarded_for:
+        return forwarded_for.split(",", 1)[0].strip()
+    return request.headers.get("X-Real-IP") or request.remote_addr or "local"
+
+
+def use_ip_scoreboard():
+    return bool(os.environ.get("PORT"))
+
+
+def participant_key():
+    if use_ip_scoreboard():
+        raw = f"ip:{client_ip()}"
+    else:
+        raw = session.setdefault("participant_id", secrets.token_hex(12))
+    return hmac.new(FLAG_SECRET.encode("utf-8"), raw.encode("utf-8"), hashlib.sha256).hexdigest()[:16]
+
+
+def participant_label():
+    return f"Participant {participant_key()[:8]}"
+
+
+def public_base_url():
+    return request.host_url.rstrip("/")
+
+
+def allowed_webhook_hosts():
+    current_host = urlparse(public_base_url()).hostname
+    hosts = {"127.0.0.1", "localhost"}
+    if current_host:
+        hosts.add(current_host)
+    return hosts
+
+
 def solved_ids():
+    if use_ip_scoreboard():
+        return set(SCORES_BY_PARTICIPANT.get(participant_key(), []))
     return set(session.get("solved", []))
 
 
 def mark_solved(challenge_id):
     solved = solved_ids()
     solved.add(challenge_id)
-    session["solved"] = sorted(solved)
-    session.modified = True
+    if use_ip_scoreboard():
+        SCORES_BY_PARTICIPANT[participant_key()] = sorted(solved)
+    else:
+        session["solved"] = sorted(solved)
+        session.modified = True
     return CHALLENGES[challenge_id]
 
 
@@ -273,6 +316,7 @@ def inject_user():
         "current_user": current_user(),
         "solved_count": len(solved_ids()),
         "total_challenges": len(CHALLENGES),
+        "participant_label": participant_label(),
     }
 
 
@@ -365,13 +409,13 @@ def feedback():
 
 @app.route("/webhook-tester")
 def webhook_tester():
-    target = request.args.get("url", "http://127.0.0.1:5000/internal/health")
+    target = request.args.get("url", url_for("internal_health", _external=True))
     body = ""
     error = None
     parsed = urlparse(target)
     try:
-        if parsed.hostname not in {"127.0.0.1", "localhost"}:
-            raise ValueError("Lab local: le proxy est limite a localhost pour eviter les abus.")
+        if parsed.hostname not in allowed_webhook_hosts():
+            raise ValueError("Lab: le proxy est limité à l'hôte de cette application pour éviter les abus.")
         # VULNERABLE BY DESIGN: SSRF-like local proxy.
         req = Request(target, headers={"X-DevSec-Proxy": "1"})
         with urlopen(req, timeout=2) as response:
@@ -386,7 +430,7 @@ def webhook_tester():
 
 @app.route("/internal/metadata")
 def internal_metadata():
-    return "service=reporting; env=dev; host=127.0.0.1:5000; internal_prefix=/internal; audit_route=secrets; backup=../private/customer_export.csv"
+    return f"service=reporting; env=dev; host={request.host}; internal_prefix=/internal; audit_route=secrets; backup=../private/customer_export.csv"
 
 
 @app.route("/internal/health")
@@ -438,7 +482,7 @@ def debug_config():
         "DEBUG=true\n"
         "BACKUP_EXPORT=../private/customer_export.csv\n"
         "LEGACY_KEYS_FILE=../private/api_keys.txt\n"
-        "INTERNAL_METADATA=http://127.0.0.1:5000/internal/metadata\n"
+        f"INTERNAL_METADATA={url_for('internal_metadata', _external=True)}\n"
         "CONFIG_VIEWER_LOGIN=config_reader\n"
         "CONFIG_VIEWER_PASSWORD=reader-2026\n"
         f"FLAG={CHALLENGES['debug']['flag']}\n"
