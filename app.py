@@ -297,8 +297,15 @@ def use_ip_scoreboard():
     return bool(os.environ.get("PORT"))
 
 
+def participant_name():
+    return session.get("participant_name", "").strip()
+
+
 def participant_key():
-    if use_ip_scoreboard():
+    name = participant_name()
+    if name:
+        raw = f"name:{name.lower()}"
+    elif use_ip_scoreboard():
         raw = f"ip:{client_ip()}"
     else:
         raw = session.setdefault("participant_id", secrets.token_hex(12))
@@ -306,7 +313,7 @@ def participant_key():
 
 
 def participant_label():
-    return f"Participant {participant_key()[:8]}"
+    return participant_name() or f"Participant {participant_key()[:8]}"
 
 
 def public_base_url():
@@ -324,7 +331,8 @@ def allowed_webhook_hosts():
 def solved_ids():
     if use_ip_scoreboard():
         return set(SCORES_BY_PARTICIPANT.get(participant_key(), []))
-    return set(session.get("solved", []))
+    solved_by_participant = session.get("solved_by_participant", {})
+    return set(solved_by_participant.get(participant_key(), []))
 
 
 def mark_solved(challenge_id):
@@ -333,7 +341,8 @@ def mark_solved(challenge_id):
     if use_ip_scoreboard():
         SCORES_BY_PARTICIPANT[participant_key()] = sorted(solved)
     else:
-        session["solved"] = sorted(solved)
+        solved_by_participant = session.setdefault("solved_by_participant", {})
+        solved_by_participant[participant_key()] = sorted(solved)
         session.modified = True
     return CHALLENGES[challenge_id]
 
@@ -382,13 +391,67 @@ def inject_user():
         "solved_count": len(solved_ids()),
         "total_challenges": len(CHALLENGES),
         "participant_label": participant_label(),
+        "participant_name": participant_name(),
         "render_mode": bool(os.environ.get("PORT")),
     }
 
 
-@app.route("/")
+@app.before_request
+def require_participant_name():
+    allowed_endpoints = {"welcome", "static"}
+    if request.endpoint in allowed_endpoints or request.endpoint is None:
+        return None
+    if not participant_name():
+        return redirect(url_for("welcome", next=request.path))
+    return None
+
+
+@app.route("/", methods=["GET", "POST"])
+def welcome():
+    error = None
+    if request.method == "POST":
+        pseudo = request.form.get("pseudo", "").strip()
+        pseudo = re.sub(r"\s+", " ", pseudo)
+        if not 2 <= len(pseudo) <= 32:
+            error = "Choisis un pseudo entre 2 et 32 caractères."
+        else:
+            session["participant_name"] = pseudo
+            session.modified = True
+            next_url = request.form.get("next") or url_for("index")
+            if not next_url.startswith("/") or next_url.startswith("//"):
+                next_url = url_for("index")
+            return redirect(next_url)
+    return render_template("welcome.html", error=error, next_url=request.args.get("next", url_for("index")))
+
+
+@app.route("/challenges")
 def index():
     return render_template("index.html")
+
+
+@app.route("/about")
+def about():
+    team_members = [
+        {
+            "name": "Alice",
+            "role": "Développeuse frontend",
+            "focus": "Elle construit les écrans produit, les formulaires et les parcours utilisateurs.",
+            "note": "Son quotidien : aller vite, rendre l'interface claire et éviter que le navigateur devienne une zone de confiance implicite.",
+        },
+        {
+            "name": "Bob",
+            "role": "Développeur backend",
+            "focus": "Il maintient les API, les webhooks, les exports et les accès aux données internes.",
+            "note": "Son enjeu : vérifier que chaque entrée reçue par le serveur est contrôlée avant d'être utilisée.",
+        },
+        {
+            "name": "Charlie",
+            "role": "Développeur plateforme",
+            "focus": "Il s'occupe des configurations, des outils de debug, des notifications et de l'exploitation locale.",
+            "note": "Son point d'attention : ne pas laisser un détail technique devenir une fuite d'information exploitable.",
+        },
+    ]
+    return render_template("about.html", team_members=team_members)
 
 
 @app.route("/login", methods=["GET", "POST"])

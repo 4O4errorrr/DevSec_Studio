@@ -8,9 +8,10 @@
   </head>
   <body>
     <header class="topbar">
-      <a class="brand" href="{{ url_for('index') }}">DevSec Studio</a>
+      <a class="brand" href="{{ url_for('welcome') }}">DevSec Studio</a>
       <nav>
         <a href="{{ url_for('index') }}">Challenges</a>
+        <a href="{{ url_for('about') }}">Équipe</a>
         <a href="{{ url_for('feedback') }}">Feedback</a>
         <a href="{{ url_for('download') }}">Docs</a>
         <a href="{{ url_for('webhook_tester') }}">Webhook</a>

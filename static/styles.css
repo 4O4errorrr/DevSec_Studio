@@ -179,6 +179,24 @@ main {
   margin-top: 24px;
 }
 
+.welcome-form {
+  margin-top: 24px;
+}
+
+.welcome-form label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.welcome-form input {
+  max-width: 420px;
+}
+
+.form-error {
+  margin: 0;
+  color: #ffffff;
+  font-weight: 950;
+}
+
 .button,
 button {
   min-height: 42px;

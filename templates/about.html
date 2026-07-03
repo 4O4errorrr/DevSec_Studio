@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  <p class="eyebrow">L'équipe du studio</p>
+  <h1>Trois développeurs, un même produit</h1>
+  <p class="hint">DevSec Studio simule une petite équipe produit. Alice, Bob et Charlie travaillent sur les mêmes fonctionnalités, avec des responsabilités différentes et les mêmes contraintes que dans un projet réel : livrer vite, maintenir la qualité et vérifier que les choix techniques ne créent pas de fuite de données.</p>
+</section>
+
+<section class="missions team-grid" aria-label="Présentation de l'équipe">
+  {% for member in team_members %}
+    <article>
+      <span>{{ member.role }}</span>
+      <h2>{{ member.name }}</h2>
+      <p>{{ member.focus }}</p>
+      <p>{{ member.note }}</p>
+    </article>
+  {% endfor %}
+</section>
+
+<section class="panel">
+  <p class="eyebrow">Pourquoi ces profils existent</p>
+  <h2>Un contexte pour chercher comme dans une vraie application</h2>
+  <p class="hint">Les challenges utilisent plusieurs comptes, tickets, exports, notifications et profils pour montrer qu'une faille ne vit presque jamais toute seule. Une donnée visible par Alice peut parfois révéler quelque chose sur Bob ou Charlie ; une configuration laissée en ligne peut aider à comprendre une autre route ; une API pratique peut appliquer plus de champs que prévu.</p>
+  <p class="hint">L'objectif n'est pas de deviner au hasard, mais d'observer les différences entre les rôles, les écrans et les réponses serveur. C'est exactement ce qu'un test de sécurité cherche à provoquer avant la mise en production.</p>
+</section>
+{% endblock %}

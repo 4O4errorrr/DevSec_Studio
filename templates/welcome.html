@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero welcome-hero">
+  <div class="hero-copy">
+    <p class="eyebrow">Atelier sécurité développeur</p>
+    <h1>
+      <strong>Bienvenue sur DevSec Studio.</strong>
+      <span>Choisissez un pseudo pour commencer</span>
+    </h1>
+    <p>Ce pseudo servira à suivre votre progression pendant l'atelier et à séparer votre scoreboard de celui des autres participants.</p>
+    <form class="welcome-form" method="post">
+      <input type="hidden" name="next" value="{{ next_url }}">
+      <label>
+        Pseudo
+        <input name="pseudo" value="{{ participant_name }}" placeholder="ex: participant-04" maxlength="32" autofocus required>
+      </label>
+      {% if error %}
+        <p class="form-error">{{ error }}</p>
+      {% endif %}
+      <button type="submit">Entrer dans le studio</button>
+    </form>
+  </div>
+  <img class="hero-art" src="{{ url_for('static', filename='developer-hero.png') }}" alt="Illustration cartoon d'une équipe de développeurs en revue sécurité">
+</section>
+{% endblock %}

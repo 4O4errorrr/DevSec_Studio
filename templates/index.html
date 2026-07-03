@@ -10,7 +10,7 @@
     <p>Explore l'application à ton rythme et pars à la chasse aux failles dissimulées dans les tickets, exports, webhooks, notifications et profils. Des indices sont semés dans chaque écran pour t'accompagner mais avant d'y recourir, rappelle-toi qu'en cybersécurité, la curiosité et la recherche sont tes meilleures armes.</p>
     <div class="actions">
       <a class="button" href="{{ url_for('login') }}">Commencer</a>
-      <a class="button secondary" href="{{ url_for('debug_config') }}">Explorer les outils dev</a>
+      <a class="button secondary" href="{{ url_for('about') }}">Découvrir l'équipe</a>
     </div>
   </div>
   <img class="hero-art" src="{{ url_for('static', filename='developer-hero.png') }}" alt="Illustration cartoon d'une équipe de développeurs en revue sécurité">
@@ -26,6 +26,6 @@
   <article><span>Mission 7</span><h2>Le lien magique</h2><p>Vérifie si une connexion sans mot de passe résiste à la prédiction de token.</p><a class="mini-link" href="{{ url_for('admin_gate') }}">Explorer</a></article>
   <article><span>Mission 8</span><h2>L'annuaire trop bavard</h2><p>Vérifie si une recherche interne peut révéler plus de droits que prévu.</p><a class="mini-link" href="{{ url_for('people_search') }}">Explorer</a></article>
   <article><span>Mission 9</span><h2>Le modèle de notification</h2><p>Teste si un outil de prévisualisation interprète trop de choses côté serveur.</p><a class="mini-link" href="{{ url_for('notification_preview') }}">Explorer</a></article>
-  <article><span>Mission 10</span><h2>Le profil trop flexible</h2><p>Vérifie si le formulaire de profil accepte uniquement les champs attendus.</p><a class="mini-link" href="{{ url_for('profile_editor') }}">Explorer</a></article>
+  <article><span>Mission 10</span><h2>Le profil trop flexible</h2><p>Vérifie si l'API de profil accepte uniquement les champs attendus.</p><a class="mini-link" href="{{ url_for('profile_editor') }}">Explorer</a></article>
 </section>
 {% endblock %}
