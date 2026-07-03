@@ -12,22 +12,29 @@
   </form>
 
   <section class="request-lab">
-    <h2>Requête attendue par l'interface</h2>
-    <pre>POST /profile-editor
-email={{ user.email }}
-team={{ user.team }}</pre>
-    <p class="hint">Un champ sensible existe côté serveur, mais il n'est pas censé être modifiable depuis cette interface.</p>
+    <h2>Swagger interne</h2>
+    <p class="hint">Le front utilise aussi une API REST pour sauvegarder le profil. La documentation interne indique seulement deux champs modifiables.</p>
+    <pre>PATCH /api/profile
+Content-Type: application/json
+
+{
+  "email": "{{ user.email }}",
+  "team": "{{ user.team }}"
+}</pre>
   </section>
 
   <section class="request-lab">
-    <h2>Simulation de requête POST côté front</h2>
-    <p class="hint">Cette zone simule une requête modifiée depuis le front-end, comme si un utilisateur avait ajouté un paramètre avant l'envoi. Le serveur ne devrait pas faire confiance à ce champ.</p>
-    <form method="post">
-      <label>Email<input name="email" value="{{ user.email }}"></label>
-      <label>Équipe<input name="team" value="{{ user.team }}"></label>
-      <label>Paramètre libre<input name="extra_param" value=""></label>
-      <button type="submit">Envoyer la requête simulée</button>
-    </form>
+    <h2>Console API</h2>
+    <p class="hint">Modifie le JSON puis envoie la requête à l'API. Le serveur devrait ignorer tout champ qui ne fait pas partie de la documentation.</p>
+    <label>Body JSON<textarea id="profileApiBody" rows="7">{
+  "email": "{{ user.email }}",
+  "team": "{{ user.team }}"
+}</textarea></label>
+    <button type="button" id="sendProfileApi">Envoyer PATCH /api/profile</button>
+    <div class="result">
+      <p>Réponse API :</p>
+      <pre id="profileApiResult">En attente d'une requête.</pre>
+    </div>
   </section>
 
   <div class="comparison-grid">
@@ -66,8 +73,31 @@ team={{ user.team }}</pre>
     </details>
     <details>
       <summary>Indice 2</summary>
-      <p>Compare la requête attendue avec les champs sensibles côté serveur. Dans la simulation, tente d'ajouter un paramètre de requête complet pour demander un rôle administrateur.</p>
+      <p>Compare la documentation Swagger avec l'état serveur actuel. Si l'API copie tous les champs JSON reçus, ajoute un champ sensible comme <code>"role": "admin"</code>.</p>
     </details>
   </div>
 </section>
+<script>
+  const sendProfileApi = document.querySelector("#sendProfileApi");
+  const profileApiBody = document.querySelector("#profileApiBody");
+  const profileApiResult = document.querySelector("#profileApiResult");
+
+  sendProfileApi?.addEventListener("click", async () => {
+    profileApiResult.textContent = "Requête en cours...";
+    try {
+      const response = await fetch("{{ url_for('profile_api') }}", {
+        method: "PATCH",
+        headers: {"Content-Type": "application/json"},
+        body: profileApiBody.value
+      });
+      const data = await response.json();
+      profileApiResult.textContent = JSON.stringify(data, null, 2);
+      if (data.challenge) {
+        window.location.reload();
+      }
+    } catch (error) {
+      profileApiResult.textContent = error.toString();
+    }
+  });
+</script>
 {% endblock %}

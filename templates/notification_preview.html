@@ -4,7 +4,21 @@
   {% include "_success.html" %}
   <p class="eyebrow">Notifications client</p>
   <h1>Le modèle de notification</h1>
-  <p class="hint">L'équipe support a créé un outil pour prévisualiser les notifications avant envoi. Les rédacteurs utilisent des variables métier dans leurs modèles, et le rendu est calculé directement par l'application.</p>
+  <p class="hint">L'équipe support a créé un outil pour prévisualiser les notifications avant envoi. Les rédacteurs utilisent quelques variables métier dans leurs modèles, et le rendu est calculé directement par le serveur.</p>
+  <p class="hint">Objectif de test : vérifier si le modèle peut lire plus que les variables documentées, notamment des valeurs stockées dans la configuration applicative.</p>
+
+  <section class="request-lab">
+    <h2>Documentation rédacteur</h2>
+    <p class="hint">Les modèles sont rendus par le moteur Jinja2 de l'application Flask. Les variables métier prévues pour les notifications sont :</p>
+    <div class="doc-list">
+      <code>{{ "{{ name }}" }}</code>
+      <code>{{ "{{ ticket_id }}" }}</code>
+      <code>{{ "{{ product }}" }}</code>
+      <code>{{ "{{ notification_type }}" }}</code>
+    </div>
+    <p class="hint">Exemple attendu : <code>Bonjour {{ "{{ name }}" }}, votre ticket {{ "{{ ticket_id }}" }} est prêt.</code></p>
+    <p class="hint">Le rendu est effectué côté serveur afin que les notifications utilisent les mêmes paramètres que l'application.</p>
+  </section>
 
   <section class="request-lab">
     <h2>Prévisualiser un modèle</h2>
@@ -26,11 +40,11 @@
   <div class="hint-stack">
     <details>
       <summary>Indice 1</summary>
-      <p>Pense à une injection côté serveur dans un moteur de template. Vérifie d'abord si une expression est évaluée.</p>
+      <p>Commence par une variable documentée comme <code>{{ "{{ name }}" }}</code>, puis vérifie si le modèle remplace seulement du texte ou s'il évalue aussi une petite opération comme <code>{{ "{{ 7 * 7 }}" }}</code>.</p>
     </details>
     <details>
       <summary>Indice 2</summary>
-      <p>Teste une expression comme <code>{{ "{{ 7 * 7 }}" }}</code>. Si elle est évaluée, cherche si l'objet <code>config</code> est accessible avec <code>{{ "{{ config }}" }}</code>.</p>
+      <p>Teste une expression comme <code>{{ "{{ 7 * 7 }}" }}</code>. Si elle est évaluée, lis la clé <code>FLAG</code> dans l'objet <code>config</code> avec <code>{{ "{{ config[\"FLAG\"] }}" }}</code>.</p>
     </details>
   </div>
 </section>

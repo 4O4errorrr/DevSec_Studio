@@ -9,7 +9,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
-from flask import Flask, redirect, render_template, render_template_string, request, session, url_for
+from flask import Flask, jsonify, redirect, render_template, render_template_string, request, session, url_for
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 
@@ -641,12 +641,17 @@ def people_search():
 
 
 @app.route("/notification-preview", methods=["GET", "POST"])
-def logs():
-    app.config["LAB_NOTIFICATION_FLAG"] = CHALLENGES["logs"]["flag"]
-    template = request.form.get("template", "Bonjour {{ name }}, votre ticket est prêt.")
+def notification_preview():
+    app.config["FLAG"] = CHALLENGES["logs"]["flag"]
+    template = request.form.get("template", "Bonjour {{ name }}, votre ticket {{ ticket_id }} est prêt.")
     rendered = ""
     error = None
-    context = {"name": "Alice", "ticket_id": "101", "product": "DevSec Studio"}
+    context = {
+        "name": "Alice",
+        "ticket_id": "101",
+        "product": "DevSec Studio",
+        "notification_type": "support",
+    }
     try:
         # VULNERABLE BY DESIGN: SSTI.
         # A user-controlled string is rendered as a server-side Jinja template.
@@ -654,7 +659,7 @@ def logs():
     except Exception as exc:
         error = str(exc)
     success = None
-    if "SUPPORT_EXPORT_TOKEN" in rendered or "LAB_NOTIFICATION_FLAG" in rendered:
+    if CHALLENGES["logs"]["flag"] in rendered:
         success = mark_solved("logs")
     return render_template("notification_preview.html", template=template, rendered=rendered, error=error, success=success)
 
@@ -666,27 +671,53 @@ def profile_editor():
     user = current_user()
     expected_profile = USER_BASELINE[user["id"]]
     if request.method == "POST":
-        # VULNERABLE BY DESIGN: mass assignment.
-        # Every posted field is copied into the user object, including privileged fields.
-        posted_fields = dict(request.form.items())
-        extra_param = posted_fields.pop("extra_param", "").strip()
-        if "=" in extra_param:
-            key, value = extra_param.split("=", 1)
-            posted_fields[key.strip()] = value.strip()
-        for key, value in posted_fields.items():
-            if key == "role" and not value.strip():
-                continue
-            if value.lower() == "true":
-                user[key] = True
-            elif value.lower() == "false":
-                user[key] = False
-            else:
-                user[key] = value
-        if user.get("role") == "admin":
-            mark_solved("profile")
+        user["email"] = request.form.get("email", user["email"])
+        user["team"] = request.form.get("team", user["team"])
         return redirect(url_for("profile_editor"))
     success = CHALLENGES["profile"] if "profile" in solved_ids() else None
     return render_template("profile_editor.html", user=user, expected_profile=expected_profile, success=success)
+
+
+@app.route("/api/profile", methods=["GET", "PATCH", "POST"])
+def profile_api():
+    user = current_user()
+    if not user:
+        return jsonify({"error": "Authentification requise."}), 401
+    if request.method == "GET":
+        return jsonify(
+            {
+                "id": user["id"],
+                "email": user["email"],
+                "team": user["team"],
+                "role": user["role"],
+                "editable_fields": ["email", "team"],
+            }
+        )
+
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict):
+        return jsonify({"error": "JSON attendu."}), 400
+
+    # VULNERABLE BY DESIGN: mass assignment.
+    # Every JSON field is copied into the user object, including privileged fields.
+    for key, value in payload.items():
+        user[key] = value
+
+    success = None
+    if user.get("role") == "admin":
+        success = mark_solved("profile")
+
+    return jsonify(
+        {
+            "profile": {
+                "id": user["id"],
+                "email": user["email"],
+                "team": user["team"],
+                "role": user["role"],
+            },
+            "challenge": success,
+        }
+    )
 
 
 @app.route("/scoreboard")
